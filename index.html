@@ -647,9 +647,9 @@
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <i class="fas fa-file-signature text-blue-600 text-lg"></i>
-                                            <h3 class="font-extrabold text-lg text-slate-800">סיכום והערות לשיעור ספציפי</h3>
+                                            <h3 class="font-extrabold text-lg text-slate-800">סיכום והערות לשיעור {{ currentSelectedLessonNum }}</h3>
                                         </div>
-                                        <p class="text-xs text-slate-500">השיעור והתאריך מזוהים אוטומטית לפי יום הלימודים, ונשמרים בארכיון השיעורים</p>
+                                        <p class="text-xs text-slate-500">ניתן לשמור מספר הערות נפרדות לשיעור זה. כל הערה נשמרת בארכיון השיעורים</p>
                                     </div>
                                     
                                     <!-- בורר שיעור ותאריך עם כפתורי דפדוף קדימה/אחורה למובייל -->
@@ -670,63 +670,165 @@
                                     </div>
                                 </div>
 
-                                <!-- שורת פרטי השיעור הנבחר (תאריך ונושא) -->
-                                <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-                                        <div>
-                                            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">תאריך השיעור:</label>
-                                            <input 
-                                                type="date" 
-                                                v-model="currentLessonEntry.date" 
-                                                @change="saveData"
-                                                class="w-full p-1.5 border rounded-lg text-xs bg-white font-semibold"
-                                            >
-                                        </div>
-                                        <div class="sm:col-span-2">
-                                            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">נושא השיעור / כותרת מרכזית:</label>
-                                            <input 
-                                                type="text" 
-                                                v-model="currentLessonEntry.topic" 
-                                                @input="saveData"
-                                                placeholder="לדוגמה: מבוא לטכניקות אלתור / תיאוריית יחסי אובייקט"
-                                                class="w-full p-1.5 border rounded-lg text-xs bg-white"
-                                            >
-                                        </div>
+                                <!-- שורת פרטי השיעור הנבחר (תאריך ונושא כללי) -->
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-0.5">תאריך השיעור:</label>
+                                        <input 
+                                            type="date" 
+                                            v-model="currentLessonEntry.date" 
+                                            @change="saveData"
+                                            class="w-full p-1.5 border rounded-lg text-xs bg-white font-semibold"
+                                        >
                                     </div>
-                                    <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
-                                        <label class="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
-                                            <input 
-                                                type="checkbox" 
-                                                v-model="currentLessonEntry.showInCalendar" 
-                                                @change="saveData"
-                                                class="w-4 h-4 text-purple-600 rounded"
-                                            >
-                                            <span class="flex items-center gap-1">
-                                                <i class="far fa-calendar-check text-purple-600"></i>
-                                                <span>הצג הערה/תובנה זו בלוח השנה האקדמי</span>
-                                            </span>
-                                        </label>
-                                        <span v-if="currentLessonEntry.date" class="text-[10px] text-slate-400">
-                                            משויך לתאריך {{ currentLessonEntry.date }}
-                                        </span>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-0.5">נושא כללי של שיעור {{ currentSelectedLessonNum }}:</label>
+                                        <input 
+                                            type="text" 
+                                            v-model="currentLessonEntry.topic" 
+                                            @input="saveData" 
+                                            placeholder="לדוגמה: מבוא לטכניקות אלתור / תיאוריית יחסי אובייקט"
+                                            class="w-full p-1.5 border rounded-lg text-xs bg-white font-medium"
+                                        >
                                     </div>
                                 </div>
 
-                                <!-- תיבת הסיכום והתובנות של השיעור -->
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                                        <span>סיכום השיעור, נקודות מפתח והערות אישיות:</span>
-                                        <span class="text-[11px] font-normal text-emerald-600 flex items-center gap-1">
-                                            <i class="fas fa-check-double"></i> נשמר ומסונכרן אוטומטית לסוף היום
-                                        </span>
-                                    </label>
-                                    <textarea 
-                                        v-model="currentLessonEntry.text" 
-                                        @input="saveData" 
-                                        rows="9" 
-                                        placeholder="כתוב כאן את סיכום שיעור זה... מה המרצה לימד/ה? אילו תובנות עלו? דגשים לסמינריון, או שאלות להמשך..."
-                                        class="w-full p-4 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 leading-relaxed bg-white"
-                                    ></textarea>
+                                <!-- עורך הוספת / עריכת הערה (עם כפתור שמירה ייעודי וגיבוי טיוטה) -->
+                                <div id="lesson-note-editor" class="p-4 rounded-2xl border transition space-y-3" :class="editingNoteId ? 'bg-amber-50/60 border-amber-300 ring-2 ring-amber-200' : 'bg-gradient-to-b from-blue-50/40 to-slate-50/60 border-blue-200'">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs" :class="editingNoteId ? 'bg-amber-600 text-white' : 'bg-blue-600 text-white'">
+                                                <i :class="editingNoteId ? 'fas fa-pen' : 'fas fa-plus'"></i>
+                                            </span>
+                                            <h4 class="font-bold text-sm text-slate-800">
+                                                <span v-if="editingNoteId">עריכת הערה קיימת</span>
+                                                <span v-else>הוספת הערה / סיכום חדש לשיעור זה</span>
+                                            </h4>
+                                        </div>
+
+                                        <!-- חיווי גיבוי טיוטה אוטומטי -->
+                                        <div class="flex items-center gap-2">
+                                            <span v-if="currentCourseNoteDraft" class="text-[11px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                                                <i class="fas fa-shield-alt text-emerald-600"></i> טיוטה מגובה מקומית
+                                            </span>
+                                            <button v-if="editingNoteId" @click="cancelNoteEdit" class="text-xs text-rose-600 hover:text-rose-800 font-bold underline">
+                                                ביטול עריכה
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- כותרת/נושא ההערה -->
+                                    <div>
+                                        <input 
+                                            type="text" 
+                                            v-model="currentCourseNoteTitle" 
+                                            @input="onNoteDraftInput"
+                                            placeholder="כותרת / נושא ההערה (למשל: דגש למבחן, תובנה מהמרצה, נקודה לסמינריון...)"
+                                            class="w-full p-2.5 border rounded-xl text-xs bg-white font-bold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                                        >
+                                    </div>
+
+                                    <!-- תוכן ההערה -->
+                                    <div>
+                                        <textarea 
+                                            v-model="currentCourseNoteDraft" 
+                                            @input="onNoteDraftInput" 
+                                            rows="5" 
+                                            placeholder="כתוב כאן את תוכן ההערה... כל אות מגובה מיידית בטיוטה מקומית ולא תמחק גם בריענון דף."
+                                            class="w-full p-3.5 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 leading-relaxed bg-white text-slate-800 font-normal"
+                                        ></textarea>
+                                    </div>
+
+                                    <!-- סרגל תחתון: סימון לוח שנה + כפתור שמירה -->
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-slate-200/70">
+                                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                                            <input 
+                                                type="checkbox" 
+                                                v-model="currentCourseNoteShowInCal" 
+                                                @change="onNoteDraftInput"
+                                                class="w-4 h-4 text-purple-600 rounded"
+                                            >
+                                            <span class="flex items-center gap-1.5">
+                                                <i class="far fa-calendar-check text-purple-600"></i>
+                                                <span>הצג הערה זו בלוח השנה של האתר</span>
+                                            </span>
+                                        </label>
+
+                                        <div class="flex items-center gap-2">
+                                            <span v-if="courseNoteSuccessMsg" class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-300 flex items-center gap-1.5">
+                                                <i class="fas fa-check-circle text-emerald-600"></i>
+                                                <span>{{ courseNoteSuccessMsg }}</span>
+                                            </span>
+
+                                            <button 
+                                                @click="saveCurrentLessonNote" 
+                                                class="font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition shadow-sm"
+                                                :class="editingNoteId ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'"
+                                            >
+                                                <i class="fas fa-save text-sm"></i>
+                                                <span v-if="editingNoteId">עדכן הערה</span>
+                                                <span v-else>שמור הערה לשיעור זה</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- רשימת הערות וסיכומים שמורים לשיעור זה -->
+                                <div class="space-y-3 pt-2">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                                            <i class="fas fa-archive text-indigo-600"></i>
+                                            <span>הערות וסיכומים שמורים לשיעור {{ currentSelectedLessonNum }}</span>
+                                            <span class="badge bg-indigo-50 text-indigo-700 text-xs font-extrabold">{{ currentLessonNotesList.length }}</span>
+                                        </h4>
+                                    </div>
+
+                                    <!-- אם אין הערות עדיין -->
+                                    <div v-if="currentLessonNotesList.length === 0" class="text-center py-7 bg-slate-50 rounded-2xl border border-dashed border-slate-300 text-xs text-slate-500 space-y-1">
+                                        <i class="far fa-sticky-note text-2xl text-slate-300 block mb-1"></i>
+                                        <span class="font-bold text-slate-600">אין עדיין הערות שמורות בשיעור זה.</span>
+                                        <div class="text-[11px] text-slate-400">כתוב הערה בתיבה שלמעלה ולחץ "שמור הערה לשיעור זה". תוכל לשמור כמה הערות שתרצה!</div>
+                                    </div>
+
+                                    <!-- כרטיסיות ההערות השמורות -->
+                                    <div v-else class="space-y-2.5">
+                                        <div 
+                                            v-for="(note, nIdx) in currentLessonNotesList" 
+                                            :key="note.id || nIdx"
+                                            class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-2xs hover:border-blue-300 transition space-y-2"
+                                        >
+                                            <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="w-5 h-5 rounded-md bg-blue-100 text-blue-800 text-[11px] font-bold flex items-center justify-center shrink-0">
+                                                        {{ nIdx + 1 }}
+                                                    </span>
+                                                    <span class="font-bold text-xs text-slate-800">{{ note.title || ('הערה ' + (nIdx + 1)) }}</span>
+                                                    <span v-if="note.showInCalendar" class="badge bg-purple-50 text-purple-700 text-[10px] flex items-center gap-1 font-semibold">
+                                                        <i class="far fa-calendar-check"></i> בלוח שנה
+                                                    </span>
+                                                </div>
+
+                                                <div class="flex items-center gap-1 shrink-0">
+                                                    <span v-if="note.createdAt" class="text-[10px] text-slate-400 ml-1 font-mono">
+                                                        {{ note.createdAt }}
+                                                    </span>
+                                                    <button @click="editLessonNote(note)" class="text-slate-400 hover:text-amber-600 p-1.5 rounded-lg hover:bg-slate-50 transition text-xs" title="ערוך הערה">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button @click="copyToClipboard(note.text, 'ההערה הועתקה ללוח!')" class="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-slate-50 transition text-xs" title="העתק תוכן">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                    <button @click="deleteLessonNote(note.id)" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-slate-50 transition text-xs" title="מחק הערה">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap bg-slate-50/70 p-3 rounded-lg border border-slate-100 font-sans">
+                                                {{ note.text }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- סרגל מעבר מהיר בין שיעורי הקורס -->
@@ -746,7 +848,7 @@
                                             @click="currentSelectedLessonNum = n"
                                             class="w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center transition shrink-0"
                                             :class="currentSelectedLessonNum === n ? 'bg-blue-600 text-white' : (hasLessonContent(currentCourseData.code, n) ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')"
-                                            :title="hasLessonContent(currentCourseData.code, n) ? 'יש סיכום בשיעור זה' : 'שיעור ריק'"
+                                            :title="hasLessonContent(currentCourseData.code, n) ? 'יש הערות בשיעור זה' : 'שיעור ריק'"
                                         >
                                             {{ n }}
                                         </button>
@@ -797,18 +899,37 @@
                                     </div>
 
                                     <!-- טופס הוספת משימה ייעודית לקורס זה -->
-                                    <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-200/60 mb-4 space-y-2">
-                                        <div class="text-xs font-bold text-amber-900">+ הוסף משימה/רפרט לקורס:</div>
-                                        <input v-model="courseNewTaskTitle" type="text" placeholder="שם המשימה / רפרט..." class="w-full p-2 border rounded-lg text-xs bg-white">
-                                        <div class="flex gap-2">
-                                            <input v-model="courseNewTaskDate" type="date" class="w-full p-2 border rounded-lg text-xs bg-white font-semibold">
-                                            <button @click="addTaskForCurrentCourse" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shrink-0 transition">
-                                                הוסף
-                                            </button>
+                                    <div class="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200/70 mb-4 space-y-2.5">
+                                        <div class="text-xs font-bold text-amber-950 flex items-center justify-between">
+                                            <span>+ הוספת משימה לקורס:</span>
+                                            <span class="text-[10px] text-amber-700 font-normal">ללא קפיצות מיותרות</span>
                                         </div>
-                                        <div class="text-[10px] text-amber-800 flex items-center gap-1">
-                                            <i class="fab fa-google text-blue-500"></i> מסתנכרן אוטומטית ליומן גוגל
+                                        <input v-model="courseNewTaskTitle" type="text" placeholder="שם המשימה / רפרט / מבחן..." class="w-full p-2 border rounded-lg text-xs bg-white font-medium focus:ring-1 focus:ring-amber-500">
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">תאריך יעד:</label>
+                                                <input v-model="courseNewTaskDate" type="date" class="w-full p-1.5 border rounded-lg text-xs bg-white font-semibold">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">סוג פעילות:</label>
+                                                <select v-model="courseNewTaskType" class="w-full p-1.5 border rounded-lg text-xs bg-white font-medium">
+                                                    <option value="משימה">משימה / מטלה</option>
+                                                    <option value="רפרט">רפרט / מצגת</option>
+                                                    <option value="מבחן">מבחן</option>
+                                                    <option value="קריאה">קריאת מאמר</option>
+                                                </select>
+                                            </div>
                                         </div>
+                                        <div class="pt-1 border-t border-amber-200/60">
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700">
+                                                <input type="checkbox" v-model="courseNewTaskShowInCalendar" class="w-3.5 h-3.5 text-amber-600 rounded">
+                                                <span>הצג משימה זו בלוח השנה של האתר</span>
+                                            </label>
+                                        </div>
+                                        <button @click="addTaskForCurrentCourse" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition shadow-xs flex items-center justify-center gap-1.5">
+                                            <i class="fas fa-plus"></i>
+                                            <span>שמור משימה לקורס</span>
+                                        </button>
                                     </div>
 
                                     <!-- רשימת משימות לקורס זה -->
@@ -2872,8 +2993,19 @@
                     lecturersData: Object.assign({}, initialLecturers, JSON.parse(localStorage.getItem('myMasterLecturers') || '{}')),
 
                     quickClassNoteText: '',
+                    // ניהול הערות וסיכומים מתקדם לשיעור (שמירה בטוחה, ריבוי הערות ומניעת אובדן מידע)
+                    currentCourseNoteDraft: '',
+                    currentCourseNoteTitle: '',
+                    currentCourseNoteShowInCal: false,
+                    editingNoteId: null,
+                    courseNoteSuccessMsg: '',
+                    expandedNoteIds: [],
+
+                    // ניהול משימות הקורס
                     courseNewTaskTitle: '',
                     courseNewTaskDate: new Date().toISOString().split('T')[0],
+                    courseNewTaskType: 'משימה',
+                    courseNewTaskShowInCalendar: true,
 
                     quickTaskTitle: '',
                     quickTaskDate: new Date().toISOString().split('T')[0],
@@ -3022,17 +3154,33 @@
                             date: this.calculateEstimatedDateForLesson(this.currentCourseData, num),
                             topic: '',
                             text: '',
-                            showInCalendar: true
+                            showInCalendar: false,
+                            notes: []
                         };
                     } else {
                         if (!this.courseLessonNotes[code][num].date) {
                             this.courseLessonNotes[code][num].date = this.calculateEstimatedDateForLesson(this.currentCourseData, num);
                         }
-                        if (this.courseLessonNotes[code][num].showInCalendar === undefined) {
-                            this.courseLessonNotes[code][num].showInCalendar = true;
+                        if (!this.courseLessonNotes[code][num].notes) {
+                            this.courseLessonNotes[code][num].notes = [];
+                            if (this.courseLessonNotes[code][num].text && this.courseLessonNotes[code][num].text.trim()) {
+                                this.courseLessonNotes[code][num].notes.push({
+                                    id: 'note_legacy_' + num,
+                                    title: this.courseLessonNotes[code][num].topic || 'סיכום שיעור',
+                                    text: this.courseLessonNotes[code][num].text,
+                                    createdAt: this.courseLessonNotes[code][num].date || '',
+                                    showInCalendar: this.courseLessonNotes[code][num].showInCalendar !== false
+                                });
+                            }
                         }
                     }
                     return this.courseLessonNotes[code][num];
+                },
+                currentLessonNotesList() {
+                    if (!this.currentCourseData) return [];
+                    const entry = this.currentLessonEntry;
+                    if (!entry || !entry.notes) return [];
+                    return entry.notes;
                 },
                 pendingTasksCount() {
                     return this.tasks.filter(t => !t.completed).length;
@@ -3316,10 +3464,21 @@
                     return results;
                 }
             },
+            watch: {
+                currentSelectedLessonNum() {
+                    this.editingNoteId = null;
+                    this.loadNoteDraftForSelectedLesson();
+                },
+                selectedCourseCode() {
+                    this.editingNoteId = null;
+                    this.loadNoteDraftForSelectedLesson();
+                }
+            },
             mounted() {
                 this.updateLiveClock();
                 setInterval(this.updateLiveClock, 1000);
                 this.initRealtimeSync();
+                this.loadNoteDraftForSelectedLesson();
 
                 // תיקון אוטומטי של תאריכים ישנים שחושבו בטעות ליום שבת (במקום ראשון)
                 if (this.courseLessonNotes) {
@@ -3422,6 +3581,144 @@
                     }
                 },
 
+                // ניהול טיוטה מקומית של הערות שיעור למניעת אובדן מידע
+                onNoteDraftInput() {
+                    if (!this.currentCourseData) return;
+                    const draftKey = `draft_note_${this.currentCourseData.code}_${this.currentSelectedLessonNum}`;
+                    const payload = {
+                        text: this.currentCourseNoteDraft,
+                        title: this.currentCourseNoteTitle,
+                        showInCal: this.currentCourseNoteShowInCal,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem(draftKey, JSON.stringify(payload));
+                },
+                loadNoteDraftForSelectedLesson() {
+                    if (!this.currentCourseData) return;
+                    const draftKey = `draft_note_${this.currentCourseData.code}_${this.currentSelectedLessonNum}`;
+                    const savedDraft = localStorage.getItem(draftKey);
+                    if (savedDraft) {
+                        try {
+                            const parsed = JSON.parse(savedDraft);
+                            if (parsed && (parsed.text || parsed.title)) {
+                                this.currentCourseNoteDraft = parsed.text || '';
+                                this.currentCourseNoteTitle = parsed.title || '';
+                                this.currentCourseNoteShowInCal = Boolean(parsed.showInCal);
+                                return;
+                            }
+                        } catch (e) {}
+                    }
+                    if (!this.editingNoteId) {
+                        this.currentCourseNoteDraft = '';
+                        this.currentCourseNoteTitle = '';
+                        this.currentCourseNoteShowInCal = false;
+                    }
+                },
+                clearNoteDraftForSelectedLesson() {
+                    if (!this.currentCourseData) return;
+                    const draftKey = `draft_note_${this.currentCourseData.code}_${this.currentSelectedLessonNum}`;
+                    localStorage.removeItem(draftKey);
+                },
+
+                // שמירה והוספת הערה/סיכום לשיעור (שמירה בטוחה עם כפתור מפורש)
+                saveCurrentLessonNote() {
+                    if (!this.currentCourseNoteDraft.trim() && !this.currentCourseNoteTitle.trim()) {
+                        alert('אנא הזן כותרת או תוכן להערה לפני השמירה');
+                        return;
+                    }
+                    const code = this.currentCourseData.code;
+                    const num = this.currentSelectedLessonNum;
+                    if (!this.courseLessonNotes[code]) this.courseLessonNotes[code] = {};
+                    if (!this.courseLessonNotes[code][num]) {
+                        this.courseLessonNotes[code][num] = {
+                            date: this.calculateEstimatedDateForLesson(this.currentCourseData, num),
+                            topic: '',
+                            text: '',
+                            showInCalendar: false,
+                            notes: []
+                        };
+                    }
+                    const lessonObj = this.courseLessonNotes[code][num];
+                    if (!lessonObj.notes || !Array.isArray(lessonObj.notes)) {
+                        lessonObj.notes = [];
+                        if (lessonObj.text && lessonObj.text.trim()) {
+                            lessonObj.notes.push({
+                                id: 'note_legacy_' + num,
+                                title: lessonObj.topic || 'סיכום שיעור',
+                                text: lessonObj.text,
+                                createdAt: lessonObj.date || '',
+                                showInCalendar: lessonObj.showInCalendar !== false
+                            });
+                        }
+                    }
+
+                    if (this.editingNoteId) {
+                        const idx = lessonObj.notes.findIndex(n => n.id === this.editingNoteId);
+                        if (idx >= 0) {
+                            lessonObj.notes[idx].title = this.currentCourseNoteTitle.trim();
+                            lessonObj.notes[idx].text = this.currentCourseNoteDraft.trim();
+                            lessonObj.notes[idx].showInCalendar = Boolean(this.currentCourseNoteShowInCal);
+                            lessonObj.notes[idx].updatedAt = new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+                        }
+                        this.editingNoteId = null;
+                        this.courseNoteSuccessMsg = 'ההערה עודכנה בהצלחה!';
+                    } else {
+                        const newNote = {
+                            id: 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                            title: this.currentCourseNoteTitle.trim() || `הערה ${lessonObj.notes.length + 1}`,
+                            text: this.currentCourseNoteDraft.trim(),
+                            createdAt: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+                            showInCalendar: Boolean(this.currentCourseNoteShowInCal)
+                        };
+                        lessonObj.notes.unshift(newNote);
+                        this.courseNoteSuccessMsg = 'ההערה נשמרה בהצלחה בארכיון השיעור!';
+                    }
+
+                    // עדכון טקסט תאימות אחורה
+                    lessonObj.text = lessonObj.notes.map(n => (n.title ? n.title + ':\n' : '') + n.text).join('\n\n---\n\n');
+                    if (!lessonObj.topic && this.currentCourseNoteTitle.trim()) {
+                        lessonObj.topic = this.currentCourseNoteTitle.trim();
+                    }
+
+                    this.currentCourseNoteDraft = '';
+                    this.currentCourseNoteTitle = '';
+                    this.currentCourseNoteShowInCal = false;
+                    this.clearNoteDraftForSelectedLesson();
+
+                    this.playReminderChime();
+                    this.saveData();
+
+                    setTimeout(() => {
+                        this.courseNoteSuccessMsg = '';
+                    }, 3500);
+                },
+                cancelNoteEdit() {
+                    this.editingNoteId = null;
+                    this.currentCourseNoteDraft = '';
+                    this.currentCourseNoteTitle = '';
+                    this.currentCourseNoteShowInCal = false;
+                    this.clearNoteDraftForSelectedLesson();
+                },
+                editLessonNote(note) {
+                    this.editingNoteId = note.id;
+                    this.currentCourseNoteTitle = note.title || '';
+                    this.currentCourseNoteDraft = note.text || '';
+                    this.currentCourseNoteShowInCal = Boolean(note.showInCalendar);
+                    const el = document.getElementById('lesson-note-editor');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                },
+                deleteLessonNote(noteId) {
+                    if (!confirm('האם אתה בטוח שברצונך למחוק הערה זו?')) return;
+                    const code = this.currentCourseData.code;
+                    const num = this.currentSelectedLessonNum;
+                    const lessonObj = this.courseLessonNotes[code] && this.courseLessonNotes[code][num];
+                    if (lessonObj && lessonObj.notes) {
+                        lessonObj.notes = lessonObj.notes.filter(n => n.id !== noteId);
+                        lessonObj.text = lessonObj.notes.map(n => (n.title ? n.title + ':\n' : '') + n.text).join('\n\n---\n\n');
+                        this.saveData();
+                    }
+                },
+
                 // צליל תזכורת סינתטי ללא צורך בקובץ חיצוני
                 playReminderChime() {
                     try {
@@ -3515,17 +3812,34 @@
                         const lessons = this.courseLessonNotes[code];
                         for (const num in lessons) {
                             const l = lessons[num];
-                            if (l && l.date === dateStr && l.showInCalendar !== false && (l.topic?.trim() || l.text?.trim())) {
-                                res.push({
-                                    type: 'note',
-                                    title: l.topic?.trim() ? `שיעור ${num}: ${l.topic}` : `שיעור ${num}: הערות וסיכום`,
-                                    course: cName,
-                                    completed: false,
-                                    lessonNum: num,
-                                    courseCode: code,
-                                    noteSnippet: l.text ? (l.text.length > 55 ? l.text.substring(0, 55) + '...' : l.text) : '',
-                                    sourceObj: l
-                                });
+                            if (l && l.date === dateStr) {
+                                if (l.notes && Array.isArray(l.notes) && l.notes.length > 0) {
+                                    for (const note of l.notes) {
+                                        if (note.showInCalendar && (note.text?.trim() || note.title?.trim())) {
+                                            res.push({
+                                                type: 'note',
+                                                title: note.title?.trim() ? `שיעור ${num}: ${note.title}` : `שיעור ${num}: הערה`,
+                                                course: cName,
+                                                completed: false,
+                                                lessonNum: num,
+                                                courseCode: code,
+                                                noteSnippet: note.text ? (note.text.length > 55 ? note.text.substring(0, 55) + '...' : note.text) : '',
+                                                sourceObj: note
+                                            });
+                                        }
+                                    }
+                                } else if (l.showInCalendar !== false && (l.topic?.trim() || l.text?.trim())) {
+                                    res.push({
+                                        type: 'note',
+                                        title: l.topic?.trim() ? `שיעור ${num}: ${l.topic}` : `שיעור ${num}: הערות וסיכום`,
+                                        course: cName,
+                                        completed: false,
+                                        lessonNum: num,
+                                        courseCode: code,
+                                        noteSnippet: l.text ? (l.text.length > 55 ? l.text.substring(0, 55) + '...' : l.text) : '',
+                                        sourceObj: l
+                                    });
+                                }
                             }
                         }
                     }
@@ -3875,7 +4189,9 @@
 
                 hasLessonContent(courseCode, lessonNum) {
                     const l = this.courseLessonNotes[courseCode] && this.courseLessonNotes[courseCode][lessonNum];
-                    return l && (l.text && l.text.trim().length > 0 || l.topic && l.topic.trim().length > 0);
+                    if (!l) return false;
+                    if (l.notes && Array.isArray(l.notes) && l.notes.length > 0) return true;
+                    return Boolean((l.text && l.text.trim().length > 0) || (l.topic && l.topic.trim().length > 0));
                 },
 
                 getTodayLessonText(courseName) {
@@ -4018,20 +4334,16 @@
                 addTaskForCurrentCourse() {
                     if (!this.courseNewTaskTitle.trim()) return;
                     const newTaskObj = {
-                        title: this.courseNewTaskTitle,
+                        title: this.courseNewTaskTitle.trim(),
                         dueDate: this.courseNewTaskDate,
                         course: this.currentCourseData.name,
+                        type: this.courseNewTaskType || 'משימה',
                         completed: false,
-                        showInCalendar: true
+                        showInCalendar: Boolean(this.courseNewTaskShowInCalendar)
                     };
                     this.tasks.push(newTaskObj);
 
-                    // סנכרון אוטומטי מיידי לגוגל קלנדר
-                    if (this.courseNewTaskDate) {
-                        const googleUrl = this.getGoogleCalUrlForTask(newTaskObj);
-                        window.open(googleUrl, '_blank');
-                    }
-
+                    // שמירה נקייה באתר בלבד ללא פתיחת חלונות מיותרים
                     this.courseNewTaskTitle = '';
                     this.saveData();
                 },
@@ -4261,22 +4573,74 @@
                 },
                 applyRemoteData(remoteData) {
                     if (!remoteData || !remoteData.timestamp) return;
+                    if (remoteData.senderId === this.clientId) return;
+
+                    const localLastUpdate = parseInt(localStorage.getItem('myMasterLastLocalUpdate') || '0', 10);
+                    if (remoteData.timestamp < localLastUpdate) {
+                        return; // התעלם ממידע ישן מהענן שלא ידרוס שינויים מקומיים טריים
+                    }
+
                     this.isInternalUpdate = true;
+                    try {
+                        if (remoteData.tasks) this.tasks = remoteData.tasks;
+                        if (remoteData.grades) this.courseGrades = remoteData.grades;
+                        if (remoteData.syllabus) this.courseSyllabusData = remoteData.syllabus;
+                        if (remoteData.lessonNotes) {
+                            this.mergeLessonNotes(remoteData.lessonNotes);
+                        }
+                        if (remoteData.patientNotes) this.patientNotes = remoteData.patientNotes;
+                        if (remoteData.practicum) this.practicumLog = remoteData.practicum;
+                        if (remoteData.payments) this.payments = remoteData.payments;
+                        if (remoteData.lecturers) this.lecturersData = remoteData.lecturers;
 
-                    if (remoteData.tasks) this.tasks = remoteData.tasks;
-                    if (remoteData.grades) this.courseGrades = remoteData.grades;
-                    if (remoteData.syllabus) this.courseSyllabusData = remoteData.syllabus;
-                    if (remoteData.lessonNotes) this.courseLessonNotes = remoteData.lessonNotes;
-                    if (remoteData.patientNotes) this.patientNotes = remoteData.patientNotes;
-                    if (remoteData.practicum) this.practicumLog = remoteData.practicum;
-                    if (remoteData.payments) this.payments = remoteData.payments;
-                    if (remoteData.lecturers) this.lecturersData = remoteData.lecturers;
-
-                    this.saveLocalOnly();
-                    this.syncStatus.lastSync = new Date();
-                    this.isInternalUpdate = false;
+                        this.saveLocalOnly();
+                        this.syncStatus.lastSync = new Date();
+                    } finally {
+                        this.isInternalUpdate = false;
+                    }
+                },
+                mergeLessonNotes(remoteNotes) {
+                    if (!remoteNotes) return;
+                    for (const code in remoteNotes) {
+                        if (!this.courseLessonNotes[code]) {
+                            this.courseLessonNotes[code] = remoteNotes[code];
+                            continue;
+                        }
+                        for (const num in remoteNotes[code]) {
+                            const remoteL = remoteNotes[code][num];
+                            const localL = this.courseLessonNotes[code][num];
+                            if (!localL) {
+                                this.courseLessonNotes[code][num] = remoteL;
+                                continue;
+                            }
+                            if (remoteL.notes && Array.isArray(remoteL.notes)) {
+                                if (!localL.notes || !Array.isArray(localL.notes)) {
+                                    localL.notes = [];
+                                    if (localL.text && localL.text.trim()) {
+                                        localL.notes.push({
+                                            id: 'note_legacy_' + num,
+                                            title: localL.topic || 'סיכום שיעור',
+                                            text: localL.text,
+                                            createdAt: localL.date || '',
+                                            showInCalendar: localL.showInCalendar !== false
+                                        });
+                                    }
+                                }
+                                for (const rNote of remoteL.notes) {
+                                    const exists = localL.notes.some(n => n.id === rNote.id);
+                                    if (!exists) {
+                                        localL.notes.push(rNote);
+                                    }
+                                }
+                            }
+                            if (!localL.text && remoteL.text) localL.text = remoteL.text;
+                            if (!localL.topic && remoteL.topic) localL.topic = remoteL.topic;
+                            if (!localL.date && remoteL.date) localL.date = remoteL.date;
+                        }
+                    }
                 },
                 saveLocalOnly() {
+                    localStorage.setItem('myMasterLastLocalUpdate', String(Date.now()));
                     localStorage.setItem('myMasterTasks', JSON.stringify(this.tasks));
                     localStorage.setItem('myMasterGrades', JSON.stringify(this.courseGrades));
                     localStorage.setItem('myMasterSyllabus', JSON.stringify(this.courseSyllabusData));
