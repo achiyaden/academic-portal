@@ -2034,29 +2034,43 @@
                         </div>
                     </div>
 
-                    <!-- בחירת סוג חיבור לטלפון -->
-                    <div class="bg-slate-100 p-1.5 rounded-xl flex gap-1 text-xs font-bold">
-                        <button 
-                            @click="connectionMode = 'tunnel'" 
-                            class="flex-1 py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5"
-                            :class="connectionMode === 'tunnel' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                        >
-                            <i class="fas fa-globe text-indigo-600"></i>
-                            <span>קישור ענן מאובטח (מומלץ)</span>
-                        </button>
-                        <button 
-                            @click="connectionMode = 'lan'" 
-                            class="flex-1 py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5"
-                            :class="connectionMode === 'lan' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                        >
-                            <i class="fas fa-wifi text-blue-600"></i>
-                            <span>רשת ביתית (Wi-Fi)</span>
-                        </button>
+                    <!-- כתובת קבועה בענן (GitHub Pages) -->
+                    <div v-if="isHostedOnline" class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl flex items-center justify-between text-xs text-indigo-950">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fab fa-github text-indigo-600 text-xl"></i>
+                            <div>
+                                <strong class="block text-indigo-900 font-bold">האתר פעיל בענן בכתובת אינטרנט קבועה</strong>
+                                <span class="text-[11px] text-indigo-700">פועל מכל מקום (מחשב וטלפון, Wi-Fi וסלולרי 4G/5G)</span>
+                            </div>
+                        </div>
+                        <span class="bg-indigo-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">קבוע לנצח</span>
                     </div>
 
-                    <div v-if="connectionMode === 'tunnel' && !tunnelUrl" class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900 flex items-center gap-2">
-                        <i class="fas fa-spinner fa-spin text-amber-600"></i>
-                        <span>מאתר קישור ענן מאובטח... אם השרת המקומי פועל, תוך מספר שניות הקישור יופיע כאן.</span>
+                    <!-- בחירת סוג חיבור לטלפון (בשרת מקומי בלבד) -->
+                    <div v-else class="space-y-2">
+                        <div class="bg-slate-100 p-1.5 rounded-xl flex gap-1 text-xs font-bold">
+                            <button 
+                                @click="connectionMode = 'tunnel'" 
+                                class="flex-1 py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5"
+                                :class="connectionMode === 'tunnel' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            >
+                                <i class="fas fa-globe text-indigo-600"></i>
+                                <span>קישור ענן מאובטח (מומלץ)</span>
+                            </button>
+                            <button 
+                                @click="connectionMode = 'lan'" 
+                                class="flex-1 py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5"
+                                :class="connectionMode === 'lan' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                            >
+                                <i class="fas fa-wifi text-blue-600"></i>
+                                <span>רשת ביתית (Wi-Fi)</span>
+                            </button>
+                        </div>
+
+                        <div v-if="connectionMode === 'tunnel' && !tunnelUrl" class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900 flex items-center gap-2">
+                            <i class="fas fa-spinner fa-spin text-amber-600"></i>
+                            <span>מאתר קישור ענן מאובטח... אם השרת המקומי פועל, תוך מספר שניות הקישור יופיע כאן.</span>
+                        </div>
                     </div>
 
                     <!-- אזור ה-QR קוד -->
@@ -2066,7 +2080,10 @@
                             <img :src="qrCodeUrl" alt="QR Code" class="w-48 h-48 mx-auto">
                         </div>
                         <div class="text-[11px] text-slate-500 mt-2">
-                            <span v-if="connectionMode === 'tunnel'">קישור ענן HTTPS מאובטח – נפתח בכל טלפון (גם מחוץ לבית ב-4G/5G).</span>
+                            <span v-if="isHostedOnline" class="text-emerald-700 font-semibold flex items-center justify-center gap-1">
+                                <i class="fas fa-check-circle text-emerald-600"></i> קישור אינטרנט קבוע – זמין תמיד מכל מכשיר בעולם!
+                            </span>
+                            <span v-else-if="connectionMode === 'tunnel'">קישור ענן HTTPS מאובטח – נפתח בכל טלפון (גם מחוץ לבית ב-4G/5G).</span>
                             <span v-else>קישור רשת ביתית – דורש שהטלפון והמחשב יהיו מחוברים לאותו ה-Wi-Fi.</span>
                         </div>
                     </div>
@@ -3093,16 +3110,22 @@
                 totalPendingAmount() {
                     return this.payments.filter(p => p.status !== 'שולם').reduce((sum, p) => sum + Number(p.amount || 0), 0);
                 },
+                isHostedOnline() {
+                    const host = window.location.hostname;
+                    return host.includes('github.io') || (host && host !== 'localhost' && host !== '127.0.0.1' && !host.startsWith('192.168.') && !host.startsWith('10.') && !host.startsWith('172.'));
+                },
                 mobileWebUrl() {
                     let baseUrl = '';
-                    if (this.connectionMode === 'tunnel' && this.tunnelUrl) {
+                    if (this.isHostedOnline) {
+                        baseUrl = window.location.href.split('?')[0].split('#')[0];
+                    } else if (this.connectionMode === 'tunnel' && this.tunnelUrl) {
                         let clean = this.tunnelUrl.trim();
                         baseUrl = clean.endsWith('/') ? clean + 'MyMasterPortal.html' : clean + '/MyMasterPortal.html';
                     } else if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
                         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                             baseUrl = `http://${this.localServerIp}:${this.localServerPort}${window.location.pathname}`;
                         } else {
-                            baseUrl = window.location.href.split('?')[0];
+                            baseUrl = window.location.href.split('?')[0].split('#')[0];
                         }
                     } else {
                         baseUrl = `http://${this.localServerIp}:${this.localServerPort}/MyMasterPortal.html`;
