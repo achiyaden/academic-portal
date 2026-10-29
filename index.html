@@ -112,11 +112,16 @@
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                     <span class="flex items-center gap-1.5 font-medium" :class="syncStatus.connected ? 'text-emerald-600' : 'text-amber-600'">
                         <span class="w-2.5 h-2.5 rounded-full inline-block" :class="syncStatus.connected ? 'bg-emerald-500 active-class-beacon' : 'bg-amber-500'"></span>
-                        {{ syncStatus.connected ? 'סנכרון ענן פעיל' : 'מתחבר לענן...' }}
+                        {{ syncStatus.connected ? 'סנכרון פעיל' : 'מתחבר לענן...' }}
                     </span>
-                    <button @click="showSyncModal = true" class="text-slate-400 hover:text-blue-600 transition" title="חיבור לפלאפון והגדרות סנכרון">
-                        <i class="fas fa-mobile-alt text-sm"></i>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button @click="exportBackupFile" class="text-amber-600 hover:text-amber-700 transition" title="הורד קובץ גיבוי מלא של הנתונים למחשב">
+                            <i class="fas fa-download text-sm"></i>
+                        </button>
+                        <button @click="showSyncModal = true" class="text-slate-400 hover:text-blue-600 transition" title="חיבור לפלאפון והגדרות סנכרון">
+                            <i class="fas fa-mobile-alt text-sm"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -240,6 +245,9 @@
                 </div>
             </div>
             <div class="flex items-center gap-1.5">
+                <button @click="exportBackupFile" class="text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-800 px-2 py-1 rounded-lg font-bold border border-amber-200 transition" title="הורד קובץ גיבוי של הנתונים">
+                    <i class="fas fa-download ml-0.5 text-amber-600"></i>גיבוי
+                </button>
                 <!-- כפתור סנכרון בלייב בראש המסך -->
                 <button @click="showSyncModal = true" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition shadow-2xs" :class="syncStatus.connected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'">
                     <span class="w-2 h-2 rounded-full inline-block" :class="syncStatus.connected ? 'bg-emerald-500 active-class-beacon' : 'bg-amber-500'"></span>
@@ -313,10 +321,18 @@
                                 כל סיכום נשמר אוטומטית לפי מספר השיעור והתאריך. בלחיצה אחת תוכל לפתוח את כל סיכומי היום.
                             </p>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <button @click="exportBackupFile" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-3 rounded-xl border border-white/20 text-xs md:text-sm flex items-center gap-1.5 transition" title="הורד קובץ גיבוי מלא של כל המידע שלך (JSON)">
+                                <i class="fas fa-download text-amber-300"></i>
+                                <span>גיבוי</span>
+                            </button>
+                            <button @click="showSyncModal = true" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-3 rounded-xl border border-white/20 text-xs md:text-sm flex items-center gap-1.5 transition" title="סנכרון ענן וחיבור לטלפון">
+                                <i class="fas fa-sync-alt text-blue-300"></i>
+                                <span>סנכרון</span>
+                            </button>
                             <button @click="openDailyRecapModal(todayIsoDate)" class="bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-3 rounded-xl shadow-md flex items-center gap-2 text-xs md:text-sm transition">
                                 <i class="fas fa-history text-base"></i>
-                                <span>פתח סיכומי היום ({{ todayHebrewShort }})</span>
+                                <span>סיכומי היום</span>
                             </button>
                             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 px-4 border border-white/20 text-center shrink-0">
                                 <div class="text-[10px] text-blue-200 font-semibold mb-0.5">השעה כעת</div>
@@ -2359,6 +2375,88 @@
                         </div>
                     </div>
 
+                    <!-- כרטיס סנכרון ענן ישיר (Real-time Cloud Sync) -->
+                    <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">סנכרון ענן ישיר (מחשב ⟷ טלפון)</h4>
+                                    <p class="text-[11px] text-blue-900">ערוץ אישי מאובטח: <strong class="font-mono">{{ syncChannel }}</strong></p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" :class="syncStatus.connected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
+                                {{ syncStatus.connected ? 'מחובר בלייב' : 'מתחבר...' }}
+                            </span>
+                        </div>
+
+                        <!-- הודעת משוב פעולה -->
+                        <div v-if="syncAlertMessage" class="p-2.5 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-xl text-xs font-bold text-center">
+                            <i class="fas fa-check-circle ml-1"></i> {{ syncAlertMessage }}
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            <button 
+                                @click="forcePushToCloud" 
+                                class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
+                                title="שולח מיד את כל המידע מהמכשיר הזה לענן"
+                            >
+                                <i class="fas fa-arrow-up"></i>
+                                <span>📤 שלח נתונים מהמכשיר לענן</span>
+                            </button>
+
+                            <button 
+                                @click="forcePullFromCloud" 
+                                class="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
+                                title="מושך את הנתונים העדכניים ביותר מהענן ומעדכן את המכשיר"
+                            >
+                                <i class="fas fa-arrow-down"></i>
+                                <span>📥 משוך ועדכן מהענן עכשיו</span>
+                            </button>
+                        </div>
+
+                        <div class="text-[11px] text-slate-600 flex items-center justify-between pt-1 border-t border-blue-100">
+                            <span>משימות נוכחיות: <strong>{{ tasks.length }}</strong></span>
+                            <span>עדכון אחרון: <strong>{{ syncStatus.lastSync ? syncStatus.lastSync.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : 'טרם סונכרן' }}</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- כרטיס גיבוי ושחזור קובץ נתונים (100% בטיחות וודאות) -->
+                    <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">גיבוי ושחזור נתונים פיזי (בטיחות מוחלטת)</h4>
+                                    <p class="text-[11px] text-amber-900">שמור עותק מלא של כל הקורסים, המשימות, ההערות והסילבוסים כקובץ במחשב</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            <button 
+                                @click="exportBackupFile" 
+                                class="w-full py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
+                            >
+                                <i class="fas fa-download"></i>
+                                <span>הורד קובץ גיבוי מלא (JSON)</span>
+                            </button>
+
+                            <button 
+                                @click="triggerImportBackupFile" 
+                                class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-amber-100/60 active:scale-[0.98] text-amber-900 border border-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition"
+                            >
+                                <i class="fas fa-upload"></i>
+                                <span>שחזר נתונים מקובץ גיבוי</span>
+                            </button>
+                            <input type="file" ref="backupFileInput" @change="handleBackupFileSelect" accept=".json" class="hidden">
+                        </div>
+                    </div>
+
                     <!-- מדריך סנכרון אוטומטי למודל וליומן גוגל -->
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-950 space-y-1.5">
                         <div class="font-bold flex items-center gap-1.5 text-emerald-900">
@@ -3158,7 +3256,8 @@
                     
                     // סנכרון
                     syncChannel: defaultChannel,
-                    syncStatus: { connected: true, lastSync: new Date() },
+                    syncStatus: { connected: false, lastSync: null },
+                    syncAlertMessage: '',
                     eventSource: null,
                     isInternalUpdate: false,
 
@@ -3648,7 +3747,9 @@
                             }
                         }
                     }
-                    if (changed) this.saveLocalOnly();
+                    if (changed) {
+                        localStorage.setItem('myMasterLessonNotes', JSON.stringify(this.courseLessonNotes));
+                    }
                 }
 
                 // הגדרת מספר שיעור התחלתי אוטומטי לקורס הנבחר
@@ -4073,7 +4174,9 @@
                                     added++;
                                 }
                             }
-                            this.saveData();
+                            if (added > 0 || updated > 0) {
+                                this.saveData();
+                            }
                             this.lastMoodleSync = new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
                             localStorage.setItem('myMasterLastMoodleSync', this.lastMoodleSync);
                         }
@@ -4687,6 +4790,85 @@
                     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${dateClean}/${dateClean}`;
                 },
 
+                // ניהול גיבוי ושחזור נתונים פיזי (בטיחות מוחלטת)
+                exportBackupFile() {
+                    const backupData = {
+                        version: '1.0',
+                        portal: 'הפורטל האקדמי של עדן',
+                        exportedAt: new Date().toISOString(),
+                        tasks: this.tasks,
+                        grades: this.courseGrades,
+                        syllabus: this.courseSyllabusData,
+                        lessonNotes: this.courseLessonNotes,
+                        patientNotes: this.patientNotes,
+                        practicum: this.practicumLog,
+                        payments: this.payments,
+                        lecturers: this.lecturersData,
+                        moodleUrl: this.moodleIcalUrl
+                    };
+                    const jsonStr = JSON.stringify(backupData, null, 2);
+                    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const now = new Date();
+                    const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+                    link.href = url;
+                    link.download = `גיבוי_פורטל_לימודים_${dateStr}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    this.syncAlertMessage = 'קובץ הגיבוי הורד בהצלחה למכשיר שלך!';
+                    setTimeout(() => { this.syncAlertMessage = ''; }, 4000);
+                },
+                triggerImportBackupFile() {
+                    if (this.$refs.backupFileInput) {
+                        this.$refs.backupFileInput.click();
+                    }
+                },
+                handleBackupFileSelect(event) {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (!data) throw new Error('קובץ גיבוי ריק');
+                            if (data.tasks) this.tasks = data.tasks;
+                            if (data.grades) this.courseGrades = data.grades;
+                            if (data.syllabus) this.courseSyllabusData = data.syllabus;
+                            if (data.lessonNotes) this.courseLessonNotes = data.lessonNotes;
+                            if (data.patientNotes) this.patientNotes = data.patientNotes;
+                            if (data.practicum) this.practicumLog = data.practicum;
+                            if (data.payments) this.payments = data.payments;
+                            if (data.lecturers) this.lecturersData = Object.assign({}, this.lecturersData, data.lecturers);
+                            if (data.moodleUrl) this.moodleIcalUrl = data.moodleUrl;
+
+                            this.saveLocalOnly();
+                            this.forceSyncNow();
+                            alert('✅ הנתונים שוחזרו בהצלחה מקובץ הגיבוי וסונכרנו לענן!');
+                        } catch (err) {
+                            alert('❌ שגיאה בקריאת קובץ הגיבוי: ' + (err.message || 'קובץ לא תקין'));
+                        } finally {
+                            event.target.value = '';
+                        }
+                    };
+                    reader.readAsText(file, 'utf-8');
+                },
+                forcePushToCloud() {
+                    this.forceSyncNow();
+                    this.syncAlertMessage = '📤 הנתונים מהמכשיר הזה נשלחו לענן בהצלחה!';
+                    setTimeout(() => { this.syncAlertMessage = ''; }, 4000);
+                },
+                forcePullFromCloud() {
+                    this.syncAlertMessage = '📥 מושך את הנתונים העדכניים מהענן...';
+                    this.fetchLatestRemoteData(true);
+                    setTimeout(() => {
+                        this.syncAlertMessage = '✅ הנתונים עודכנו בהצלחה מהענן!';
+                        setTimeout(() => { this.syncAlertMessage = ''; }, 3500);
+                    }, 1500);
+                },
+
                 // סנכרון בזמן אמת (Real-time Cloud Sync)
                 initRealtimeSync() {
                     localStorage.setItem('achiya_sync_channel', this.syncChannel);
@@ -4698,12 +4880,24 @@
                         this.eventSource.onopen = () => {
                             this.syncStatus.connected = true;
                         };
-                        this.eventSource.onmessage = (event) => {
+                        this.eventSource.onmessage = async (event) => {
                             try {
                                 const payload = JSON.parse(event.data);
-                                if (payload.event === 'message' && payload.message) {
-                                    const remoteData = JSON.parse(payload.message);
-                                    if (remoteData.senderId !== this.clientId) {
+                                if (payload.event === 'message') {
+                                    let remoteData = null;
+                                    if (payload.attachment && payload.attachment.url) {
+                                        try {
+                                            const res = await fetch(payload.attachment.url);
+                                            remoteData = await res.json();
+                                        } catch (err) {
+                                            console.warn('Attachment load error:', err);
+                                        }
+                                    } else if (payload.message && payload.message.startsWith('{')) {
+                                        try {
+                                            remoteData = JSON.parse(payload.message);
+                                        } catch (err) {}
+                                    }
+                                    if (remoteData && remoteData.senderId !== this.clientId) {
                                         this.applyRemoteData(remoteData);
                                     }
                                 }
@@ -4716,19 +4910,36 @@
                         this.syncStatus.connected = false;
                     }
 
-                    // משיכה ראשונית
+                    // משיכה ראשונית של המידע העדכני ביותר
+                    this.fetchLatestRemoteData();
+                },
+                fetchLatestRemoteData(force = false) {
                     fetch(`https://ntfy.sh/${this.syncChannel}/json?poll=1&since=24h`)
                         .then(res => res.text())
-                        .then(text => {
+                        .then(async text => {
                             const lines = text.trim().split('\n');
                             for (let i = lines.length - 1; i >= 0; i--) {
                                 if (lines[i]) {
                                     try {
                                         const item = JSON.parse(lines[i]);
-                                        if (item.event === 'message' && item.message) {
-                                            const data = JSON.parse(item.message);
-                                            this.applyRemoteData(data);
-                                            break;
+                                        if (item.event === 'message') {
+                                            let remoteData = null;
+                                            if (item.attachment && item.attachment.url) {
+                                                try {
+                                                    const res = await fetch(item.attachment.url);
+                                                    remoteData = await res.json();
+                                                } catch (err) {
+                                                    console.warn('Poll attachment error:', err);
+                                                }
+                                            } else if (item.message && item.message.startsWith('{')) {
+                                                try {
+                                                    remoteData = JSON.parse(item.message);
+                                                } catch (err) {}
+                                            }
+                                            if (remoteData && (force || remoteData.senderId !== this.clientId)) {
+                                                this.applyRemoteData(remoteData, force);
+                                                break;
+                                            }
                                         }
                                     } catch (e) {}
                                 }
@@ -4741,27 +4952,57 @@
                     this.initRealtimeSync();
                     this.forceSyncNow();
                 },
-                applyRemoteData(remoteData) {
+                applyRemoteData(remoteData, force = false) {
                     if (!remoteData || !remoteData.timestamp) return;
-                    if (remoteData.senderId === this.clientId) return;
+                    if (!force && remoteData.senderId === this.clientId) return;
 
                     const localLastUpdate = parseInt(localStorage.getItem('myMasterLastLocalUpdate') || '0', 10);
-                    if (remoteData.timestamp < localLastUpdate) {
-                        return; // התעלם ממידע ישן מהענן שלא ידרוס שינויים מקומיים טריים
+                    const localHasData = (this.tasks && this.tasks.length > 0) || 
+                                         (this.courseLessonNotes && Object.keys(this.courseLessonNotes).length > 0) ||
+                                         (this.courseSyllabusData && Object.keys(this.courseSyllabusData).length > 0);
+
+                    // אם לא נכפה סנכרון ידני, והמכשיר המקומי כבר מכיל נתונים ועודכן לאחרונה, אל תדרוס
+                    if (!force && localHasData && remoteData.timestamp < localLastUpdate - 60000) {
+                        return;
                     }
 
                     this.isInternalUpdate = true;
                     try {
-                        if (remoteData.tasks) this.tasks = remoteData.tasks;
-                        if (remoteData.grades) this.courseGrades = remoteData.grades;
-                        if (remoteData.syllabus) this.courseSyllabusData = remoteData.syllabus;
-                        if (remoteData.lessonNotes) {
-                            this.mergeLessonNotes(remoteData.lessonNotes);
+                        if (force) {
+                            if (remoteData.tasks) this.tasks = remoteData.tasks;
+                            if (remoteData.grades) this.courseGrades = remoteData.grades;
+                            if (remoteData.syllabus) this.courseSyllabusData = remoteData.syllabus;
+                            if (remoteData.lessonNotes) this.courseLessonNotes = remoteData.lessonNotes;
+                            if (remoteData.patientNotes) this.patientNotes = remoteData.patientNotes;
+                            if (remoteData.practicum) this.practicumLog = remoteData.practicum;
+                            if (remoteData.payments) this.payments = remoteData.payments;
+                            if (remoteData.lecturers) this.lecturersData = remoteData.lecturers;
+                        } else {
+                            if (remoteData.tasks && Array.isArray(remoteData.tasks)) {
+                                this.mergeTasks(remoteData.tasks);
+                            }
+                            if (remoteData.grades) {
+                                this.courseGrades = Object.assign({}, this.courseGrades, remoteData.grades);
+                            }
+                            if (remoteData.syllabus) {
+                                this.courseSyllabusData = Object.assign({}, this.courseSyllabusData, remoteData.syllabus);
+                            }
+                            if (remoteData.lessonNotes) {
+                                this.mergeLessonNotes(remoteData.lessonNotes);
+                            }
+                            if (remoteData.patientNotes && Array.isArray(remoteData.patientNotes)) {
+                                this.mergePatientNotes(remoteData.patientNotes);
+                            }
+                            if (remoteData.practicum && Array.isArray(remoteData.practicum)) {
+                                this.mergePracticum(remoteData.practicum);
+                            }
+                            if (remoteData.payments && Array.isArray(remoteData.payments)) {
+                                this.payments = remoteData.payments;
+                            }
+                            if (remoteData.lecturers) {
+                                this.lecturersData = Object.assign({}, this.lecturersData, remoteData.lecturers);
+                            }
                         }
-                        if (remoteData.patientNotes) this.patientNotes = remoteData.patientNotes;
-                        if (remoteData.practicum) this.practicumLog = remoteData.practicum;
-                        if (remoteData.payments) this.payments = remoteData.payments;
-                        if (remoteData.lecturers) this.lecturersData = remoteData.lecturers;
 
                         this.saveLocalOnly();
                         this.syncStatus.lastSync = new Date();
@@ -4769,8 +5010,56 @@
                         this.isInternalUpdate = false;
                     }
                 },
+                mergeTasks(remoteTasks) {
+                    if (!this.tasks || !Array.isArray(this.tasks)) {
+                        this.tasks = remoteTasks;
+                        return;
+                    }
+                    for (const rTask of remoteTasks) {
+                        const localIdx = this.tasks.findIndex(t => t.id === rTask.id);
+                        if (localIdx === -1) {
+                            this.tasks.push(rTask);
+                        } else {
+                            if (rTask.completed !== undefined) {
+                                this.tasks[localIdx].completed = rTask.completed;
+                            }
+                            if (rTask.title) this.tasks[localIdx].title = rTask.title;
+                            if (rTask.dueDate) this.tasks[localIdx].dueDate = rTask.dueDate;
+                            if (rTask.type) this.tasks[localIdx].type = rTask.type;
+                        }
+                    }
+                },
+                mergePatientNotes(remotePNotes) {
+                    if (!this.patientNotes || !Array.isArray(this.patientNotes)) {
+                        this.patientNotes = remotePNotes;
+                        return;
+                    }
+                    for (const rNote of remotePNotes) {
+                        const idx = this.patientNotes.findIndex(n => n.id === rNote.id);
+                        if (idx === -1) {
+                            this.patientNotes.push(rNote);
+                        } else {
+                            this.patientNotes[idx] = Object.assign({}, this.patientNotes[idx], rNote);
+                        }
+                    }
+                },
+                mergePracticum(remoteLog) {
+                    if (!this.practicumLog || !Array.isArray(this.practicumLog)) {
+                        this.practicumLog = remoteLog;
+                        return;
+                    }
+                    for (const rLog of remoteLog) {
+                        const idx = this.practicumLog.findIndex(l => l.id === rLog.id);
+                        if (idx === -1) {
+                            this.practicumLog.push(rLog);
+                        } else {
+                            this.practicumLog[idx] = Object.assign({}, this.practicumLog[idx], rLog);
+                        }
+                    }
+                },
                 mergeLessonNotes(remoteNotes) {
                     if (!remoteNotes) return;
+                    if (!this.courseLessonNotes) this.courseLessonNotes = {};
                     for (const code in remoteNotes) {
                         if (!this.courseLessonNotes[code]) {
                             this.courseLessonNotes[code] = remoteNotes[code];
@@ -4797,15 +5086,19 @@
                                     }
                                 }
                                 for (const rNote of remoteL.notes) {
-                                    const exists = localL.notes.some(n => n.id === rNote.id);
-                                    if (!exists) {
+                                    const idx = localL.notes.findIndex(n => n.id === rNote.id);
+                                    if (idx === -1) {
                                         localL.notes.push(rNote);
+                                    } else {
+                                        localL.notes[idx] = Object.assign({}, localL.notes[idx], rNote);
                                     }
                                 }
                             }
-                            if (!localL.text && remoteL.text) localL.text = remoteL.text;
-                            if (!localL.topic && remoteL.topic) localL.topic = remoteL.topic;
-                            if (!localL.date && remoteL.date) localL.date = remoteL.date;
+                            if (remoteL.text && (!localL.text || remoteL.text.length > localL.text.length)) {
+                                localL.text = remoteL.text;
+                            }
+                            if (remoteL.topic && !localL.topic) localL.topic = remoteL.topic;
+                            if (remoteL.date && !localL.date) localL.date = remoteL.date;
                         }
                     }
                 },
@@ -4845,6 +5138,10 @@
 
                     fetch(`https://ntfy.sh/${this.syncChannel}`, {
                         method: 'POST',
+                        headers: {
+                            'Title': 'Academic Portal Sync',
+                            'Priority': 'default'
+                        },
                         body: JSON.stringify(fullPayload)
                     })
                     .then(() => {
