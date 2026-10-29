@@ -108,21 +108,7 @@
                 <p class="text-xs font-semibold text-blue-600 bg-blue-50 py-1 px-2.5 rounded-full inline-block mt-1">שנה א' | תב"מ תשפ"ז</p>
                 <div class="mt-2 text-xs text-slate-500">תואר שני - טיפול במוסיקה</div>
 
-                <!-- אינדיקטור סנכרון חי -->
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="flex items-center gap-1.5 font-medium" :class="syncStatus.connected ? 'text-emerald-600' : 'text-amber-600'">
-                        <span class="w-2.5 h-2.5 rounded-full inline-block" :class="syncStatus.connected ? 'bg-emerald-500 active-class-beacon' : 'bg-amber-500'"></span>
-                        {{ syncStatus.connected ? 'סנכרון פעיל' : 'מתחבר לענן...' }}
-                    </span>
-                    <div class="flex items-center gap-2">
-                        <button @click="exportBackupFile" class="text-amber-600 hover:text-amber-700 transition" title="הורד קובץ גיבוי מלא של הנתונים למחשב">
-                            <i class="fas fa-download text-sm"></i>
-                        </button>
-                        <button @click="showSyncModal = true" class="text-slate-400 hover:text-blue-600 transition" title="חיבור לפלאפון והגדרות סנכרון">
-                            <i class="fas fa-mobile-alt text-sm"></i>
-                        </button>
-                    </div>
-                </div>
+
             </div>
             
             <!-- ניווט ראשי -->
@@ -244,19 +230,12 @@
                     <span class="text-[10px] text-blue-600 font-bold block">תב"מ • תשפ"ז</span>
                 </div>
             </div>
-            <div class="flex items-center gap-1.5">
-                <button @click="exportBackupFile" class="text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-800 px-2 py-1 rounded-lg font-bold border border-amber-200 transition" title="הורד קובץ גיבוי של הנתונים">
-                    <i class="fas fa-download ml-0.5 text-amber-600"></i>גיבוי
+            <div class="flex items-center gap-2">
+                <button @click="openDailyRecapModal(null)" class="text-xs bg-teal-50 hover:bg-teal-100 text-teal-700 px-2.5 py-1.5 rounded-lg font-bold border border-teal-200 transition flex items-center gap-1 shadow-2xs">
+                    <i class="fas fa-history text-xs"></i>
+                    <span>סיכומים</span>
                 </button>
-                <!-- כפתור סנכרון בלייב בראש המסך -->
-                <button @click="showSyncModal = true" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition shadow-2xs" :class="syncStatus.connected ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'">
-                    <span class="w-2 h-2 rounded-full inline-block" :class="syncStatus.connected ? 'bg-emerald-500 active-class-beacon' : 'bg-amber-500'"></span>
-                    <span>{{ syncStatus.connected ? 'מסונכרן' : 'מתחבר' }}</span>
-                </button>
-                <button @click="openDailyRecapModal(null)" class="text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-700 px-2 py-1 rounded-lg font-bold border border-teal-200 transition">
-                    <i class="fas fa-history ml-0.5"></i>סיכומים
-                </button>
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-slate-600 p-1.5 hover:bg-slate-100 rounded-lg">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-slate-600 p-2 hover:bg-slate-100 rounded-lg">
                     <i class="fas fa-bars text-base"></i>
                 </button>
             </div>
@@ -286,15 +265,8 @@
                         <span v-if="t.badge" class="badge text-[10px]" :class="t.badgeClass || 'bg-slate-100 text-slate-600'">{{ t.badge }}</span>
                     </button>
                 </div>
-                <!-- כפתור סנכרון ו-QR בתחתית המגירה -->
-                <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <button @click="showSyncModal = true; mobileMenuOpen = false" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold p-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
-                        <i class="fas fa-qrcode text-sm"></i>
-                        <span>סנכרון ענן, QR וטלפון</span>
-                    </button>
-                    <div class="text-center text-[10px] text-slate-400 font-mono">
-                        {{ liveClock }} • {{ todayHebrewDate }}
-                    </div>
+                <div class="pt-3 border-t border-slate-100 text-center text-xs text-slate-400 font-mono">
+                    {{ liveClock }} • {{ todayHebrewDate }}
                 </div>
             </div>
         </div>
@@ -321,18 +293,10 @@
                                 כל סיכום נשמר אוטומטית לפי מספר השיעור והתאריך. בלחיצה אחת תוכל לפתוח את כל סיכומי היום.
                             </p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button @click="exportBackupFile" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-3 rounded-xl border border-white/20 text-xs md:text-sm flex items-center gap-1.5 transition" title="הורד קובץ גיבוי מלא של כל המידע שלך (JSON)">
-                                <i class="fas fa-download text-amber-300"></i>
-                                <span>גיבוי</span>
-                            </button>
-                            <button @click="showSyncModal = true" class="bg-white/10 hover:bg-white/20 text-white font-bold px-3 py-3 rounded-xl border border-white/20 text-xs md:text-sm flex items-center gap-1.5 transition" title="סנכרון ענן וחיבור לטלפון">
-                                <i class="fas fa-sync-alt text-blue-300"></i>
-                                <span>סנכרון</span>
-                            </button>
+                        <div class="flex items-center gap-3">
                             <button @click="openDailyRecapModal(todayIsoDate)" class="bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-3 rounded-xl shadow-md flex items-center gap-2 text-xs md:text-sm transition">
                                 <i class="fas fa-history text-base"></i>
-                                <span>סיכומי היום</span>
+                                <span>פתח סיכומי היום ({{ todayHebrewShort }})</span>
                             </button>
                             <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 px-4 border border-white/20 text-center shrink-0">
                                 <div class="text-[10px] text-blue-200 font-semibold mb-0.5">השעה כעת</div>
@@ -2286,232 +2250,6 @@
             </div>
         </div>
 
-        <!-- מודאל סנכרון וחיבור למכשירים (Sync Modal) -->
-        <div v-if="showSyncModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showSyncModal = false">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
-                        <i class="fas fa-mobile-alt text-blue-600"></i>
-                        <span>סנכרון מלא לטלפון הנייד (ענן + ברקוד QR)</span>
-                    </h3>
-                    <button @click="showSyncModal = false" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-                </div>
-
-                <div class="space-y-4 text-sm text-slate-600">
-                    <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-start gap-2.5">
-                        <i class="fas fa-check-circle text-emerald-600 mt-0.5 text-base shrink-0"></i>
-                        <div class="text-xs text-emerald-900 leading-relaxed">
-                            <strong>סנכרון ענן אוטומטי פעיל:</strong> כל שינוי שתעשה במחשב או בטלפון (משימות, ציונים, הערות שיעור, מטופלים) מסתנכרן אוטומטית לשני הכיוונים ללא שום פעולה נוספת!
-                        </div>
-                    </div>
-
-                    <!-- כתובת קבועה בענן (GitHub Pages) -->
-                    <div v-if="isHostedOnline" class="bg-indigo-50 border border-indigo-200 p-3 rounded-xl flex items-center justify-between text-xs text-indigo-950">
-                        <div class="flex items-center gap-2.5">
-                            <i class="fab fa-github text-indigo-600 text-xl"></i>
-                            <div>
-                                <strong class="block text-indigo-900 font-bold">האתר פעיל בענן בכתובת אינטרנט קבועה</strong>
-                                <span class="text-[11px] text-indigo-700">פועל מכל מקום (מחשב וטלפון, Wi-Fi וסלולרי 4G/5G)</span>
-                            </div>
-                        </div>
-                        <span class="bg-indigo-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">קבוע לנצח</span>
-                    </div>
-
-                    <!-- בחירת סוג חיבור לטלפון (בשרת מקומי בלבד) -->
-                    <div v-else class="space-y-2">
-                        <div class="bg-slate-100 p-1.5 rounded-xl flex gap-1 text-xs font-bold">
-                            <button 
-                                @click="connectionMode = 'tunnel'" 
-                                class="flex-1 py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5"
-                                :class="connectionMode === 'tunnel' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                            >
-                                <i class="fas fa-globe text-indigo-600"></i>
-                                <span>קישור ענן מאובטח (מומלץ)</span>
-                            </button>
-                            <button 
-                                @click="connectionMode = 'lan'" 
-                                class="flex-1 py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5"
-                                :class="connectionMode === 'lan' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
-                            >
-                                <i class="fas fa-wifi text-blue-600"></i>
-                                <span>רשת ביתית (Wi-Fi)</span>
-                            </button>
-                        </div>
-
-                        <div v-if="connectionMode === 'tunnel' && !tunnelUrl" class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900 flex items-center gap-2">
-                            <i class="fas fa-spinner fa-spin text-amber-600"></i>
-                            <span>מאתר קישור ענן מאובטח... אם השרת המקומי פועל, תוך מספר שניות הקישור יופיע כאן.</span>
-                        </div>
-                    </div>
-
-                    <!-- אזור ה-QR קוד -->
-                    <div class="text-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <div class="text-xs font-bold text-slate-700 mb-2">1. סרוק עם מצלמת הטלפון לפתיחה מיידית:</div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 inline-block shadow-sm">
-                            <img :src="qrCodeUrl" alt="QR Code" class="w-48 h-48 mx-auto">
-                        </div>
-                        <div class="text-[11px] text-slate-500 mt-2">
-                            <span v-if="isHostedOnline" class="text-emerald-700 font-semibold flex items-center justify-center gap-1">
-                                <i class="fas fa-check-circle text-emerald-600"></i> קישור אינטרנט קבוע – זמין תמיד מכל מכשיר בעולם!
-                            </span>
-                            <span v-else-if="connectionMode === 'tunnel'">קישור ענן HTTPS מאובטח – נפתח בכל טלפון (גם מחוץ לבית ב-4G/5G).</span>
-                            <span v-else>קישור רשת ביתית – דורש שהטלפון והמחשב יהיו מחוברים לאותו ה-Wi-Fi.</span>
-                        </div>
-                    </div>
-
-                    <!-- קישור ישיר להעתקה ושליחה לוואטסאפ -->
-                    <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-200 space-y-2">
-                        <label class="block text-xs font-bold text-blue-900">2. העתק קישור או שלח ישירות לוואטסאפ של הטלפון:</label>
-                        <div class="flex gap-2">
-                            <input :value="mobileWebUrl" readonly type="text" class="w-full p-2 border rounded-lg text-xs font-mono bg-white text-slate-700 select-all" dir="ltr">
-                            <button @click="copyToClipboard(mobileWebUrl, 'קישור הפורטל הועתק! תוכל לשלוח אותו לעצמך בוואטסאפ או לפתוח בדפדפן בטלפון')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 flex items-center gap-1 transition">
-                                <i class="fas fa-copy"></i>
-                                <span>העתק</span>
-                            </button>
-                            <a :href="'https://api.whatsapp.com/send?text=' + encodeURIComponent('הפורטל האקדמי של עדן: ' + mobileWebUrl)" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 flex items-center gap-1.5 transition">
-                                <i class="fab fa-whatsapp"></i>
-                                <span>וואטסאפ</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- כרטיס סנכרון ענן ישיר (Real-time Cloud Sync) -->
-                    <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">סנכרון ענן ישיר (מחשב ⟷ טלפון)</h4>
-                                    <p class="text-[11px] text-blue-900">ערוץ אישי מאובטח: <strong class="font-mono">{{ syncChannel }}</strong></p>
-                                </div>
-                            </div>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" :class="syncStatus.connected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
-                                {{ syncStatus.connected ? 'מחובר בלייב' : 'מתחבר...' }}
-                            </span>
-                        </div>
-
-                        <!-- הודעת משוב פעולה -->
-                        <div v-if="syncAlertMessage" class="p-2.5 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-xl text-xs font-bold text-center">
-                            <i class="fas fa-check-circle ml-1"></i> {{ syncAlertMessage }}
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                            <button 
-                                @click="forcePushToCloud" 
-                                class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
-                                title="שולח מיד את כל המידע מהמכשיר הזה לענן"
-                            >
-                                <i class="fas fa-arrow-up"></i>
-                                <span>📤 שלח נתונים מהמכשיר לענן</span>
-                            </button>
-
-                            <button 
-                                @click="forcePullFromCloud" 
-                                class="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
-                                title="מושך את הנתונים העדכניים ביותר מהענן ומעדכן את המכשיר"
-                            >
-                                <i class="fas fa-arrow-down"></i>
-                                <span>📥 משוך ועדכן מהענן עכשיו</span>
-                            </button>
-                        </div>
-
-                        <div class="text-[11px] text-slate-600 flex items-center justify-between pt-1 border-t border-blue-100">
-                            <span>משימות נוכחיות: <strong>{{ tasks.length }}</strong></span>
-                            <span>עדכון אחרון: <strong>{{ syncStatus.lastSync ? syncStatus.lastSync.toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : 'טרם סונכרן' }}</strong></span>
-                        </div>
-                    </div>
-
-                    <!-- כרטיס גיבוי ושחזור קובץ נתונים (100% בטיחות וודאות) -->
-                    <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">גיבוי ושחזור נתונים פיזי (בטיחות מוחלטת)</h4>
-                                    <p class="text-[11px] text-amber-900">שמור עותק מלא של כל הקורסים, המשימות, ההערות והסילבוסים כקובץ במחשב</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                            <button 
-                                @click="exportBackupFile" 
-                                class="w-full py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
-                            >
-                                <i class="fas fa-download"></i>
-                                <span>הורד קובץ גיבוי מלא (JSON)</span>
-                            </button>
-
-                            <button 
-                                @click="triggerImportBackupFile" 
-                                class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-amber-100/60 active:scale-[0.98] text-amber-900 border border-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition"
-                            >
-                                <i class="fas fa-upload"></i>
-                                <span>שחזר נתונים מקובץ גיבוי</span>
-                            </button>
-                            <input type="file" ref="backupFileInput" @change="handleBackupFileSelect" accept=".json" class="hidden">
-                        </div>
-                    </div>
-
-                    <!-- מדריך סנכרון אוטומטי למודל וליומן גוגל -->
-                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-950 space-y-1.5">
-                        <div class="font-bold flex items-center gap-1.5 text-emerald-900">
-                            <i class="fab fa-google text-emerald-700"></i>
-                            <span>סנכרון אוטומטי של המודל ישירות ליומן גוגל שלך:</span>
-                        </div>
-                        <p class="text-[11px] text-emerald-800 leading-relaxed">
-                            1. פתח את <strong>calendar.google.com</strong> במחשב או בטלפון.<br>
-                            2. לחץ על ה-<strong>+</strong> ליד "יומנים אחרים" ובחר <strong>"מכתובת URL"</strong> (From URL).<br>
-                            3. הדבק את קישור המודל ולחץ <strong>"הוסף יומן"</strong>.<br>
-                            כל משימה, בוחן ומטלה במודל תופיע אוטומטית ביומן גוגל ותקפיץ תזכורות בטלפון!
-                        </p>
-                    </div>
-
-                    <div v-if="connectionMode === 'lan'" class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-700">כתובת IP של המחשב ב-Wi-Fi:</span>
-                            <span class="text-[11px] text-slate-400 font-mono">:{{ localServerPort }}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input v-model="localServerIp" type="text" placeholder="192.168.14.11" class="w-full p-2 border rounded-lg text-xs font-mono bg-white" dir="ltr">
-                        </div>
-                        <div class="text-[11px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200">
-                            <i class="fas fa-shield-alt text-amber-600 ml-1"></i>
-                            <strong>אם החיבור לא נטען בטלפון:</strong> לחץ פעמיים על הקובץ <code>פתח_גישה_ברשת_הביתית.bat</code> בתיקייה (בלחיצה אחת הוא מאשר את חומת האש של Windows).
-                        </div>
-                    </div>
-
-                    <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-200 space-y-1 text-xs text-indigo-900">
-                        <div class="font-bold flex items-center gap-1.5">
-                            <i class="fas fa-lightbulb text-amber-500"></i> טיפ: הפיכה לאפליקציה במסך הבית בטלפון
-                        </div>
-                        <p class="text-[11px] text-indigo-800 leading-relaxed">
-                            באייפון (Safari): לחץ על כפתור השיתוף בתחתית המסך ובחר <strong>"הוסף למסך הבית"</strong>.<br>
-                            באנדרואיד (Chrome): לחץ על 3 הנקודות בתפריט ובחר <strong>"התקן אפליקציה"</strong> או <strong>"הוסף למסך הבית"</strong>.
-                        </p>
-                    </div>
-
-                    <div class="border-t pt-2">
-                        <div class="flex justify-between items-center text-xs text-slate-500">
-                            <span>ערוץ סנכרון ענן אישי:</span>
-                            <span class="font-mono font-bold text-slate-700">{{ syncChannel }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-3 border-t text-center flex justify-between items-center">
-                    <button @click="forceSyncNow" class="text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1">
-                        <i class="fas fa-sync-alt"></i> רענן סנכרון ענן
-                    </button>
-                    <button @click="showSyncModal = false" class="bg-slate-800 text-white font-bold px-6 py-2 rounded-xl text-sm hover:bg-slate-900 transition">סגור</button>
-                </div>
-            </div>
-        </div>
-
         <!-- מודאל כרטיס מרצה אישי (Lecturer Profile Modal) -->
         <div v-if="showLecturerModal && selectedLecturer" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showLecturerModal = false">
             <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -3722,7 +3460,6 @@
             mounted() {
                 this.updateLiveClock();
                 setInterval(this.updateLiveClock, 1000);
-                this.initRealtimeSync();
                 this.loadNoteDraftForSelectedLesson();
 
                 // תיקון אוטומטי של תאריכים ישנים שחושבו בטעות ליום שבת (במקום ראשון)
@@ -3761,59 +3498,6 @@
                 // בדיקת תזכורות תקופתית
                 this.checkRemindersDue();
                 setInterval(() => this.checkRemindersDue(), 20000);
-
-                // עמידות שינה והתעוררות לסמארטפונים (Resume / Sleep handling)
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') {
-                        this.initRealtimeSync();
-                        this.fetchLatestRemoteData();
-                        this.checkRemindersDue();
-                    } else if (document.visibilityState === 'hidden') {
-                        if (this.syncDebounceTimer) {
-                            clearTimeout(this.syncDebounceTimer);
-                            this.syncDebounceTimer = null;
-                            this.forceSyncNow();
-                        }
-                    }
-                });
-                window.addEventListener('online', () => {
-                    this.initRealtimeSync();
-                    this.fetchLatestRemoteData();
-                });
-                window.addEventListener('beforeunload', () => {
-                    if (this.syncDebounceTimer) {
-                        clearTimeout(this.syncDebounceTimer);
-                        this.forceSyncNow();
-                    }
-                });
-
-                // איתור כתובת שרת מקומי וכתובת ענן מאובטח (Cloudflare Tunnel) לסריקת QR קוד
-                const apiBase = (window.location.protocol === 'http:' || window.location.protocol === 'https:') ? '' : 'http://127.0.0.1:8080';
-                fetch(`${apiBase}/api/lan-ip`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.ip) this.localServerIp = data.ip;
-                        if (data.port) this.localServerPort = String(data.port);
-                        if (data.tunnelUrl) this.tunnelUrl = data.tunnelUrl;
-                    })
-                    .catch(() => {});
-
-                const tunnelPoller = setInterval(() => {
-                    if (this.tunnelUrl) {
-                        clearInterval(tunnelPoller);
-                        return;
-                    }
-                    fetch(`${apiBase}/api/lan-ip`)
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.tunnelUrl) {
-                                this.tunnelUrl = data.tunnelUrl;
-                                clearInterval(tunnelPoller);
-                            }
-                        })
-                        .catch(() => {});
-                }, 3000);
-                setTimeout(() => clearInterval(tunnelPoller), 30000);
             },
             methods: {
                 // דפדוף שיעורים מהיר למובייל ולדסקטופ
@@ -4010,30 +3694,7 @@
                     } catch (e) {}
                 },
 
-                fetchLatestRemoteData() {
-                    fetch(`https://ntfy.sh/${this.syncChannel}/json?poll=1&since=24h`)
-                        .then(res => res.text())
-                        .then(text => {
-                            const lines = text.trim().split('\n');
-                            for (let i = lines.length - 1; i >= 0; i--) {
-                                if (lines[i]) {
-                                    try {
-                                        const item = JSON.parse(lines[i]);
-                                        if (item.event === 'message' && item.message) {
-                                            const data = JSON.parse(item.message);
-                                            if (data.senderId !== this.clientId) {
-                                                this.applyRemoteData(data);
-                                            }
-                                            break;
-                                        }
-                                    } catch (e) {}
-                                }
-                            }
-                        })
-                        .catch(() => {});
-                },
-
-                // ניווט לוח שנה אקדמי
+// ניווט לוח שנה אקדמי
                 prevMonth() {
                     this.currentCalendarDate = new Date(this.calendarYear, this.calendarMonth - 1, 1, 12, 0, 0);
                 },
@@ -4789,320 +4450,11 @@
                     const dateClean = note.nextDate ? note.nextDate.replace(/-/g, '') : '';
                     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${dateClean}/${dateClean}`;
                 },
-
-                // ניהול גיבוי ושחזור נתונים פיזי (בטיחות מוחלטת)
-                exportBackupFile() {
-                    const backupData = {
-                        version: '1.0',
-                        portal: 'הפורטל האקדמי של עדן',
-                        exportedAt: new Date().toISOString(),
-                        tasks: this.tasks,
-                        grades: this.courseGrades,
-                        syllabus: this.courseSyllabusData,
-                        lessonNotes: this.courseLessonNotes,
-                        patientNotes: this.patientNotes,
-                        practicum: this.practicumLog,
-                        payments: this.payments,
-                        lecturers: this.lecturersData,
-                        moodleUrl: this.moodleIcalUrl
-                    };
-                    const jsonStr = JSON.stringify(backupData, null, 2);
-                    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    const now = new Date();
-                    const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
-                    link.href = url;
-                    link.download = `גיבוי_פורטל_לימודים_${dateStr}.json`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    this.syncAlertMessage = 'קובץ הגיבוי הורד בהצלחה למכשיר שלך!';
-                    setTimeout(() => { this.syncAlertMessage = ''; }, 4000);
-                },
-                triggerImportBackupFile() {
-                    if (this.$refs.backupFileInput) {
-                        this.$refs.backupFileInput.click();
-                    }
-                },
-                handleBackupFileSelect(event) {
-                    const file = event.target.files && event.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const data = JSON.parse(e.target.result);
-                            if (!data) throw new Error('קובץ גיבוי ריק');
-                            if (data.tasks) this.tasks = data.tasks;
-                            if (data.grades) this.courseGrades = data.grades;
-                            if (data.syllabus) this.courseSyllabusData = data.syllabus;
-                            if (data.lessonNotes) this.courseLessonNotes = data.lessonNotes;
-                            if (data.patientNotes) this.patientNotes = data.patientNotes;
-                            if (data.practicum) this.practicumLog = data.practicum;
-                            if (data.payments) this.payments = data.payments;
-                            if (data.lecturers) this.lecturersData = Object.assign({}, this.lecturersData, data.lecturers);
-                            if (data.moodleUrl) this.moodleIcalUrl = data.moodleUrl;
-
-                            this.saveLocalOnly();
-                            this.forceSyncNow();
-                            alert('✅ הנתונים שוחזרו בהצלחה מקובץ הגיבוי וסונכרנו לענן!');
-                        } catch (err) {
-                            alert('❌ שגיאה בקריאת קובץ הגיבוי: ' + (err.message || 'קובץ לא תקין'));
-                        } finally {
-                            event.target.value = '';
-                        }
-                    };
-                    reader.readAsText(file, 'utf-8');
-                },
-                forcePushToCloud() {
-                    this.forceSyncNow();
-                    this.syncAlertMessage = '📤 הנתונים מהמכשיר הזה נשלחו לענן בהצלחה!';
-                    setTimeout(() => { this.syncAlertMessage = ''; }, 4000);
-                },
-                forcePullFromCloud() {
-                    this.syncAlertMessage = '📥 מושך את הנתונים העדכניים מהענן...';
-                    this.fetchLatestRemoteData(true);
-                    setTimeout(() => {
-                        this.syncAlertMessage = '✅ הנתונים עודכנו בהצלחה מהענן!';
-                        setTimeout(() => { this.syncAlertMessage = ''; }, 3500);
-                    }, 1500);
-                },
-
-                // סנכרון בזמן אמת (Real-time Cloud Sync)
-                initRealtimeSync() {
-                    localStorage.setItem('achiya_sync_channel', this.syncChannel);
-
-                    if (this.eventSource) this.eventSource.close();
-                    
-                    try {
-                        this.eventSource = new EventSource(`https://ntfy.sh/${this.syncChannel}/sse`);
-                        this.eventSource.onopen = () => {
-                            this.syncStatus.connected = true;
-                        };
-                        this.eventSource.onmessage = async (event) => {
-                            try {
-                                const payload = JSON.parse(event.data);
-                                if (payload.event === 'message') {
-                                    let remoteData = null;
-                                    if (payload.attachment && payload.attachment.url) {
-                                        try {
-                                            const res = await fetch(payload.attachment.url);
-                                            remoteData = await res.json();
-                                        } catch (err) {
-                                            console.warn('Attachment load error:', err);
-                                        }
-                                    } else if (payload.message && payload.message.startsWith('{')) {
-                                        try {
-                                            remoteData = JSON.parse(payload.message);
-                                        } catch (err) {}
-                                    }
-                                    if (remoteData && remoteData.senderId !== this.clientId) {
-                                        this.applyRemoteData(remoteData);
-                                    }
-                                }
-                            } catch (e) { }
-                        };
-                        this.eventSource.onerror = () => {
-                            this.syncStatus.connected = false;
-                        };
-                    } catch (e) {
-                        this.syncStatus.connected = false;
-                    }
-
-                    // משיכה ראשונית של המידע העדכני ביותר
-                    this.fetchLatestRemoteData();
-                },
-                fetchLatestRemoteData(force = false) {
-                    fetch(`https://ntfy.sh/${this.syncChannel}/json?poll=1&since=24h`)
-                        .then(res => res.text())
-                        .then(async text => {
-                            const lines = text.trim().split('\n');
-                            for (let i = lines.length - 1; i >= 0; i--) {
-                                if (lines[i]) {
-                                    try {
-                                        const item = JSON.parse(lines[i]);
-                                        if (item.event === 'message') {
-                                            let remoteData = null;
-                                            if (item.attachment && item.attachment.url) {
-                                                try {
-                                                    const res = await fetch(item.attachment.url);
-                                                    remoteData = await res.json();
-                                                } catch (err) {
-                                                    console.warn('Poll attachment error:', err);
-                                                }
-                                            } else if (item.message && item.message.startsWith('{')) {
-                                                try {
-                                                    remoteData = JSON.parse(item.message);
-                                                } catch (err) {}
-                                            }
-                                            if (remoteData && (force || remoteData.senderId !== this.clientId)) {
-                                                this.applyRemoteData(remoteData, force);
-                                                break;
-                                            }
-                                        }
-                                    } catch (e) {}
-                                }
-                            }
-                        })
-                        .catch(() => {});
-                },
-                updateSyncChannel() {
-                    localStorage.setItem('achiya_sync_channel', this.syncChannel);
-                    this.initRealtimeSync();
-                    this.forceSyncNow();
-                },
-                applyRemoteData(remoteData, force = false) {
-                    if (!remoteData || !remoteData.timestamp) return;
-                    if (!force && remoteData.senderId === this.clientId) return;
-
-                    const localLastUpdate = parseInt(localStorage.getItem('myMasterLastLocalUpdate') || '0', 10);
-                    const localHasData = (this.tasks && this.tasks.length > 0) || 
-                                         (this.courseLessonNotes && Object.keys(this.courseLessonNotes).length > 0) ||
-                                         (this.courseSyllabusData && Object.keys(this.courseSyllabusData).length > 0);
-
-                    // אם לא נכפה סנכרון ידני, והמכשיר המקומי כבר מכיל נתונים ועודכן לאחרונה, אל תדרוס
-                    if (!force && localHasData && remoteData.timestamp < localLastUpdate - 60000) {
-                        return;
-                    }
-
-                    this.isInternalUpdate = true;
-                    try {
-                        if (force) {
-                            if (remoteData.tasks) this.tasks = remoteData.tasks;
-                            if (remoteData.grades) this.courseGrades = remoteData.grades;
-                            if (remoteData.syllabus) this.courseSyllabusData = remoteData.syllabus;
-                            if (remoteData.lessonNotes) this.courseLessonNotes = remoteData.lessonNotes;
-                            if (remoteData.patientNotes) this.patientNotes = remoteData.patientNotes;
-                            if (remoteData.practicum) this.practicumLog = remoteData.practicum;
-                            if (remoteData.payments) this.payments = remoteData.payments;
-                            if (remoteData.lecturers) this.lecturersData = remoteData.lecturers;
-                        } else {
-                            if (remoteData.tasks && Array.isArray(remoteData.tasks)) {
-                                this.mergeTasks(remoteData.tasks);
-                            }
-                            if (remoteData.grades) {
-                                this.courseGrades = Object.assign({}, this.courseGrades, remoteData.grades);
-                            }
-                            if (remoteData.syllabus) {
-                                this.courseSyllabusData = Object.assign({}, this.courseSyllabusData, remoteData.syllabus);
-                            }
-                            if (remoteData.lessonNotes) {
-                                this.mergeLessonNotes(remoteData.lessonNotes);
-                            }
-                            if (remoteData.patientNotes && Array.isArray(remoteData.patientNotes)) {
-                                this.mergePatientNotes(remoteData.patientNotes);
-                            }
-                            if (remoteData.practicum && Array.isArray(remoteData.practicum)) {
-                                this.mergePracticum(remoteData.practicum);
-                            }
-                            if (remoteData.payments && Array.isArray(remoteData.payments)) {
-                                this.payments = remoteData.payments;
-                            }
-                            if (remoteData.lecturers) {
-                                this.lecturersData = Object.assign({}, this.lecturersData, remoteData.lecturers);
-                            }
-                        }
-
-                        this.saveLocalOnly();
-                        this.syncStatus.lastSync = new Date();
-                    } finally {
-                        this.isInternalUpdate = false;
-                    }
-                },
-                mergeTasks(remoteTasks) {
-                    if (!this.tasks || !Array.isArray(this.tasks)) {
-                        this.tasks = remoteTasks;
-                        return;
-                    }
-                    for (const rTask of remoteTasks) {
-                        const localIdx = this.tasks.findIndex(t => t.id === rTask.id);
-                        if (localIdx === -1) {
-                            this.tasks.push(rTask);
-                        } else {
-                            if (rTask.completed !== undefined) {
-                                this.tasks[localIdx].completed = rTask.completed;
-                            }
-                            if (rTask.title) this.tasks[localIdx].title = rTask.title;
-                            if (rTask.dueDate) this.tasks[localIdx].dueDate = rTask.dueDate;
-                            if (rTask.type) this.tasks[localIdx].type = rTask.type;
-                        }
-                    }
-                },
-                mergePatientNotes(remotePNotes) {
-                    if (!this.patientNotes || !Array.isArray(this.patientNotes)) {
-                        this.patientNotes = remotePNotes;
-                        return;
-                    }
-                    for (const rNote of remotePNotes) {
-                        const idx = this.patientNotes.findIndex(n => n.id === rNote.id);
-                        if (idx === -1) {
-                            this.patientNotes.push(rNote);
-                        } else {
-                            this.patientNotes[idx] = Object.assign({}, this.patientNotes[idx], rNote);
-                        }
-                    }
-                },
-                mergePracticum(remoteLog) {
-                    if (!this.practicumLog || !Array.isArray(this.practicumLog)) {
-                        this.practicumLog = remoteLog;
-                        return;
-                    }
-                    for (const rLog of remoteLog) {
-                        const idx = this.practicumLog.findIndex(l => l.id === rLog.id);
-                        if (idx === -1) {
-                            this.practicumLog.push(rLog);
-                        } else {
-                            this.practicumLog[idx] = Object.assign({}, this.practicumLog[idx], rLog);
-                        }
-                    }
-                },
-                mergeLessonNotes(remoteNotes) {
-                    if (!remoteNotes) return;
-                    if (!this.courseLessonNotes) this.courseLessonNotes = {};
-                    for (const code in remoteNotes) {
-                        if (!this.courseLessonNotes[code]) {
-                            this.courseLessonNotes[code] = remoteNotes[code];
-                            continue;
-                        }
-                        for (const num in remoteNotes[code]) {
-                            const remoteL = remoteNotes[code][num];
-                            const localL = this.courseLessonNotes[code][num];
-                            if (!localL) {
-                                this.courseLessonNotes[code][num] = remoteL;
-                                continue;
-                            }
-                            if (remoteL.notes && Array.isArray(remoteL.notes)) {
-                                if (!localL.notes || !Array.isArray(localL.notes)) {
-                                    localL.notes = [];
-                                    if (localL.text && localL.text.trim()) {
-                                        localL.notes.push({
-                                            id: 'note_legacy_' + num,
-                                            title: localL.topic || 'סיכום שיעור',
-                                            text: localL.text,
-                                            createdAt: localL.date || '',
-                                            showInCalendar: localL.showInCalendar !== false
-                                        });
-                                    }
-                                }
-                                for (const rNote of remoteL.notes) {
-                                    const idx = localL.notes.findIndex(n => n.id === rNote.id);
-                                    if (idx === -1) {
-                                        localL.notes.push(rNote);
-                                    } else {
-                                        localL.notes[idx] = Object.assign({}, localL.notes[idx], rNote);
-                                    }
-                                }
-                            }
-                            if (remoteL.text && (!localL.text || remoteL.text.length > localL.text.length)) {
-                                localL.text = remoteL.text;
-                            }
-                            if (remoteL.topic && !localL.topic) localL.topic = remoteL.topic;
-                            if (remoteL.date && !localL.date) localL.date = remoteL.date;
-                        }
-                    }
-                },
+                // שמירת נתונים מקומית במחשב (Local Storage)
                 saveLocalOnly() {
+                    this.saveData();
+                },
+                saveData() {
                     localStorage.setItem('myMasterLastLocalUpdate', String(Date.now()));
                     localStorage.setItem('myMasterTasks', JSON.stringify(this.tasks));
                     localStorage.setItem('myMasterGrades', JSON.stringify(this.courseGrades));
@@ -5112,45 +4464,6 @@
                     localStorage.setItem('myMasterPracticum', JSON.stringify(this.practicumLog));
                     localStorage.setItem('myMasterPayments', JSON.stringify(this.payments));
                     localStorage.setItem('myMasterLecturers', JSON.stringify(this.lecturersData));
-                },
-                saveData() {
-                    if (this.isInternalUpdate) return;
-                    this.saveLocalOnly();
-
-                    clearTimeout(this.syncDebounceTimer);
-                    this.syncDebounceTimer = setTimeout(() => {
-                        this.forceSyncNow();
-                    }, 800);
-                },
-                forceSyncNow() {
-                    const fullPayload = {
-                        senderId: this.clientId,
-                        timestamp: Date.now(),
-                        tasks: this.tasks,
-                        grades: this.courseGrades,
-                        syllabus: this.courseSyllabusData,
-                        lessonNotes: this.courseLessonNotes,
-                        patientNotes: this.patientNotes,
-                        practicum: this.practicumLog,
-                        payments: this.payments,
-                        lecturers: this.lecturersData
-                    };
-
-                    fetch(`https://ntfy.sh/${this.syncChannel}`, {
-                        method: 'POST',
-                        headers: {
-                            'Title': 'Academic Portal Sync',
-                            'Priority': 'default'
-                        },
-                        body: JSON.stringify(fullPayload)
-                    })
-                    .then(() => {
-                        this.syncStatus.connected = true;
-                        this.syncStatus.lastSync = new Date();
-                    })
-                    .catch(() => {
-                        this.syncStatus.connected = false;
-                    });
                 },
 
                 // שיטות ניהול פרטי מרצים והתקשרות
