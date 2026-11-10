@@ -182,39 +182,13 @@
                 </button>
 
 
-                <!-- 5. קליניקה ומטופלים -->
-                <button @click="currentTab = 'patients'" :class="['w-full text-right px-6 py-3 font-medium nav-item flex items-center justify-between', currentTab === 'patients' ? 'active' : 'text-slate-600']">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-heartbeat w-5 text-center text-rose-500"></i>
-                        <span>קליניקה ותיעוד שיחות</span>
-                    </div>
-                    <span v-if="patientNotes.length" class="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full">{{ patientNotes.length }}</span>
-                </button>
-
-                <!-- 6. מחשבון ציונים וממוצע -->
+                <!-- 5. מחשבון ציונים וממוצע -->
                 <button @click="currentTab = 'grades'" :class="['w-full text-right px-6 py-3 font-medium nav-item flex items-center justify-between', currentTab === 'grades' ? 'active' : 'text-slate-600']">
                     <div class="flex items-center gap-3">
                         <i class="fas fa-graduation-cap w-5 text-center text-emerald-600"></i>
                         <span>מחשבון ציונים וממוצע</span>
                     </div>
                     <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full">{{ weightedGPA ? weightedGPA.toFixed(1) : '52 נ"ז' }}</span>
-                </button>
-
-                <!-- 7. פרקטיקום -->
-                <button @click="currentTab = 'practicum'" :class="['w-full text-right px-6 py-3 font-medium nav-item flex items-center justify-between', currentTab === 'practicum' ? 'active' : 'text-slate-600']">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-user-clock w-5 text-center text-purple-600"></i>
-                        <span>יומן פרקטיקום</span>
-                    </div>
-                    <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">{{ totalPracticumHours }} ש'</span>
-                </button>
-
-                <!-- 8. שכר לימוד -->
-                <button @click="currentTab = 'finance'" :class="['w-full text-right px-6 py-3 font-medium nav-item flex items-center justify-between', currentTab === 'finance' ? 'active' : 'text-slate-600']">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-shekel-sign w-5 text-center text-teal-600"></i>
-                        <span>שכר לימוד ותשלומים</span>
-                    </div>
                 </button>
             </nav>
             
@@ -421,47 +395,28 @@
                     </div>
                 </div>
 
-                <!-- דדליינים ומטופלים -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="card">
-                        <div class="flex justify-between items-center mb-3 border-b pb-2">
-                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fas fa-hourglass-half text-amber-500"></i>
-                                <span>מטלות ומבחנים קרובים</span>
-                            </h3>
-                            <button @click="currentTab = 'tasks'" class="text-xs text-blue-600 font-semibold hover:underline">כל המשימות</button>
-                        </div>
-                        <div v-if="upcomingTasks.length === 0" class="text-center py-6 text-slate-400 text-xs">
-                            אין מטלות דחופות ל-7 הימים הקרובים.
-                        </div>
-                        <div v-else class="space-y-2">
-                            <div v-for="t in upcomingTasks.slice(0, 3)" :key="t.title" class="p-2.5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
-                                <div>
-                                    <div class="font-bold text-slate-800">{{ t.title }}</div>
-                                    <div class="text-[11px] text-slate-500">{{ t.course }}</div>
-                                </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="badge" :class="getDaysLeftClass(t.dueDate)">{{ formatCountdown(t.dueDate) }}</span>
-                                    <button @click="openEditTaskModal(t)" class="text-slate-400 hover:text-amber-600 p-1 transition" title="ערוך"><i class="fas fa-edit"></i></button>
-                                </div>
-                            </div>
-                        </div>
+                <!-- דדליינים ומטלות קרובות -->
+                <div class="card">
+                    <div class="flex justify-between items-center mb-3 border-b pb-2">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-hourglass-half text-amber-500"></i>
+                            <span>מטלות ומבחנים קרובים</span>
+                        </h3>
+                        <button @click="currentTab = 'tasks'" class="text-xs text-blue-600 font-semibold hover:underline">כל המשימות</button>
                     </div>
-
-                    <div class="card">
-                        <div class="flex justify-between items-center mb-3 border-b pb-2">
-                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fas fa-heartbeat text-rose-500"></i>
-                                <span>תזכורת מטופל אחרונה</span>
-                            </h3>
-                            <button @click="currentTab = 'patients'" class="text-xs text-rose-600 font-semibold hover:underline">תיעוד קליני</button>
-                        </div>
-                        <div v-if="patientNotes.length === 0" class="text-center py-6 text-slate-400 text-xs">
-                            אין עדיין תיעודי פגישות קליניות.
-                        </div>
-                        <div v-else class="bg-rose-50/60 p-3 rounded-xl border border-rose-100 text-xs text-slate-700">
-                            <div class="font-bold text-rose-800 mb-1">{{ patientNotes[0].patientCode }} ({{ patientNotes[0].date }})</div>
-                            <p class="line-clamp-2 text-slate-600">{{ patientNotes[0].nextSessionGoal || patientNotes[0].summary }}</p>
+                    <div v-if="upcomingTasks.length === 0" class="text-center py-6 text-slate-400 text-xs">
+                        אין מטלות דחופות ל-7 הימים הקרובים.
+                    </div>
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div v-for="t in upcomingTasks.slice(0, 6)" :key="t.title" class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between text-xs hover:border-amber-200 transition">
+                            <div>
+                                <div class="font-bold text-slate-800">{{ t.title }}</div>
+                                <div class="text-[11px] text-slate-500">{{ t.course }}</div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="badge" :class="getDaysLeftClass(t.dueDate)">{{ formatCountdown(t.dueDate) }}</span>
+                                <button @click="openEditTaskModal(t)" class="text-slate-400 hover:text-amber-600 p-1 transition" title="ערוך"><i class="fas fa-edit"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1582,152 +1537,7 @@
                 </div>
             </div>
 
-            <!-- 5. טאב: קליניקה ומטופלים -->
-            <div v-if="currentTab === 'patients'" class="max-w-6xl mx-auto space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center gap-2.5">
-                            <i class="fas fa-heartbeat text-rose-500"></i>
-                            <span>קליניקה ותיעוד שיחות טיפוליות</span>
-                        </h1>
-                        <p class="text-sm text-slate-500">תיעוד תהליכים, כלי נגינה, תובנות להדרכה ותזכורות למפגש הבא</p>
-                    </div>
-                    <button @click="showAddPatientModal = true" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition text-sm">
-                        <i class="fas fa-plus"></i>
-                        <span>תיעוד פגישה חדשה</span>
-                    </button>
-                </div>
-
-                <div class="card p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
-                    <div class="relative w-full md:w-80">
-                        <i class="fas fa-search absolute right-3.5 top-3.5 text-slate-400"></i>
-                        <input v-model="patientSearch" type="text" placeholder="חיפוש לפי קוד מטופל, כלי נגינה או מילת מפתח..." class="w-full pr-10 pl-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-rose-500">
-                    </div>
-                    <div class="text-xs text-slate-500 font-medium">
-                        סה"כ תיעודים קליניים: <strong class="text-slate-800">{{ patientNotes.length }}</strong>
-                    </div>
-                </div>
-
-                <div v-if="filteredPatientNotes.length === 0" class="card text-center py-12 text-slate-500">
-                    <i class="fas fa-notes-medical text-4xl text-slate-300 mb-3 block"></i>
-                    <p class="font-bold text-slate-700">אין עדיין תיעודי פגישות.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div v-for="(note, idx) in filteredPatientNotes" :key="idx" class="card border-r-4 border-r-rose-500 flex flex-col justify-between hover:shadow-md transition">
-                        <div>
-                            <div class="flex justify-between items-start mb-3 border-b pb-2.5">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="font-bold text-slate-900 text-base">{{ note.patientCode }}</h3>
-                                        <span class="badge bg-rose-50 text-rose-700 text-xs">{{ note.date }}</span>
-                                    </div>
-                                    <div v-if="note.musicalTools" class="text-xs text-indigo-600 mt-1 font-medium">
-                                        <i class="fas fa-music ml-1"></i> כלים/התערבויות: {{ note.musicalTools }}
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <button @click="openEditPatientModal(note, idx)" class="text-slate-400 hover:text-rose-600 transition p-1" title="ערוך תיעוד פגישה"><i class="fas fa-edit"></i></button>
-                                    <button @click="deletePatientNote(idx)" class="text-slate-300 hover:text-red-500 transition p-1" title="מחק"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </div>
-
-                            <div class="space-y-3 text-sm text-slate-700">
-                                <div>
-                                    <div class="text-xs font-bold text-slate-400 mb-0.5">מהלך השיחה / התהליך הטיפולי:</div>
-                                    <p class="whitespace-pre-wrap leading-relaxed">{{ note.summary }}</p>
-                                </div>
-
-                                <div v-if="note.supervisionNotes" class="bg-purple-50/70 border border-purple-100 p-2.5 rounded-lg text-xs">
-                                    <strong class="text-purple-800 block mb-0.5"><i class="fas fa-chalkboard-teacher ml-1"></i>נקודות להדרכה:</strong>
-                                    <p class="text-purple-900">{{ note.supervisionNotes }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-if="note.nextSessionGoal || note.nextDate" class="mt-4 pt-3 border-t border-slate-100 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100 flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-[11px] font-bold text-amber-800 flex items-center gap-1">
-                                    <i class="far fa-bell"></i> יעד / תזכורת למפגש הבא:
-                                </div>
-                                <div class="text-xs text-slate-800 font-medium mt-0.5">
-                                    {{ note.nextSessionGoal || 'פגישה טיפולית' }}
-                                    <span v-if="note.nextDate" class="text-slate-500 text-[11px]">({{ note.nextDate }})</span>
-                                </div>
-                            </div>
-                            <a v-if="note.nextDate" :href="getGoogleCalUrlForPatientReminder(note)" target="_blank" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2.5 py-1.5 rounded-md flex items-center gap-1.5 transition shrink-0" title="הוסף תזכורת זו ליומן גוגל">
-                                <i class="far fa-calendar-plus"></i>
-                                <span>ליומן</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- מודאל הוספת תיעוד מטופל -->
-                <div v-if="showAddPatientModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showAddPatientModal = false">
-                    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                        <div class="flex justify-between items-center border-b pb-3">
-                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                <i class="fas fa-notes-medical text-rose-500"></i>
-                                <span>תיעוד פגישה טיפולית חדשה</span>
-                            </h3>
-                            <button @click="showAddPatientModal = false" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-                        </div>
-
-                        <form @submit.prevent="savePatientNote" class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">כינוי / קוד מטופל (לשמירה על סודיות) *</label>
-                                    <input v-model="newPatientNote.patientCode" required type="text" placeholder="לדוגמה: מטופל י' (בן 8)" class="w-full p-2.5 border rounded-xl text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">תאריך המפגש *</label>
-                                    <input v-model="newPatientNote.date" required type="date" class="w-full p-2.5 border rounded-xl text-sm">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">כלים מוזיקליים / סוג התערבות</label>
-                                <input v-model="newPatientNote.musicalTools" type="text" placeholder="למשל: תופים, אלתור חופשי, קסילופון, שיר מוכר, הקול והתנועה" class="w-full p-2.5 border rounded-xl text-sm">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">מהלך הפגישה, שיחה ותובנות רגשיות *</label>
-                                <textarea v-model="newPatientNote.summary" required rows="4" placeholder="תאר את תהליך המפגש, תגובות המטופל..." class="w-full p-2.5 border rounded-xl text-sm"></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-purple-800 mb-1">נקודות להעלאה בהדרכה הקבוצתית / אישית</label>
-                                <input v-model="newPatientNote.supervisionNotes" type="text" placeholder="שאלות או דילמות להדרכה..." class="w-full p-2.5 border rounded-xl text-sm">
-                            </div>
-
-                            <div class="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200/60 space-y-3">
-                                <div class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                                    <i class="far fa-bell"></i> תזכורת ויעד למפגש הבא (לסנכרון ליומן)
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">תאריך המפגש הבא</label>
-                                        <input v-model="newPatientNote.nextDate" type="date" class="w-full p-2 border rounded-lg text-xs bg-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">יעד / מה להביא / נושא לבדיקה</label>
-                                        <input v-model="newPatientNote.nextSessionGoal" type="text" placeholder="למשל: לבדוק תגובה לקצב איטי" class="w-full p-2 border rounded-lg text-xs bg-white">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-end gap-3 pt-2 border-t">
-                                <button type="button" @click="showAddPatientModal = false" class="px-4 py-2 text-slate-600 text-sm font-medium">ביטול</button>
-                                <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-6 py-2 rounded-xl text-sm shadow-sm">שמור תיעוד</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- 6. טאב: מחשבון ציונים וממוצע תואר -->
+            <!-- 5. טאב: מחשבון ציונים וממוצע תואר -->
             <div v-if="currentTab === 'grades'" class="max-w-6xl mx-auto space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
@@ -1777,171 +1587,6 @@
                                 <td class="p-3.5 text-center font-bold text-slate-700">{{ c.credits }}</td>
                                 <td class="p-3.5 text-center" @click.stop>
                                     <input type="number" min="0" max="100" v-model.number="courseGrades[c.code]" @input="saveData" placeholder="ציון" class="w-20 text-center p-1.5 border rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 7. טאב: יומן פרקטיקום -->
-            <div v-if="currentTab === 'practicum'" class="max-w-6xl mx-auto space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-                            <i class="fas fa-hands-helping text-purple-600"></i>
-                            <span>יומן הכשרה מעשית (פרקטיקום)</span>
-                        </h1>
-                        <p class="text-sm text-slate-500">דרישת תואר: 10 שעות שבועיות (5 ש"ש) - תיעוד טיפול, הדרכה וכתיבת דוחות</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="card bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-center">
-                        <div class="text-xs text-purple-200 mb-1">סה"כ שעות שדווחו</div>
-                        <div class="text-4xl font-extrabold">{{ totalPracticumHours }}</div>
-                    </div>
-                    <div class="card bg-gradient-to-br from-emerald-600 to-teal-600 text-white text-center">
-                        <div class="text-xs text-emerald-200 mb-1">שעות טיפול ישירות</div>
-                        <div class="text-4xl font-extrabold">{{ totalDirectHours }}</div>
-                    </div>
-                    <div class="card bg-gradient-to-br from-blue-600 to-cyan-600 text-white text-center">
-                        <div class="text-xs text-blue-200 mb-1">שעות הדרכה</div>
-                        <div class="text-4xl font-extrabold">{{ totalSupervisionHours }}</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 class="font-bold text-base text-slate-800 mb-3">דיווח שעות פרקטיקום חדש</h3>
-                    <form @submit.prevent="addPracticumEntry" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">תאריך</label>
-                            <input v-model="newPracticum.date" required type="date" class="w-full p-2.5 border rounded-xl text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">סוג פעילות</label>
-                            <select v-model="newPracticum.type" class="w-full p-2.5 border rounded-xl text-sm font-medium">
-                                <option value="טיפול">טיפול ישיר במוסיקה</option>
-                                <option value="הדרכה">הדרכה (סופרוויז'ן)</option>
-                                <option value="דוחות">כתיבת דוחות/ישיבות צוות</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">מספר שעות</label>
-                            <input v-model.number="newPracticum.hours" required type="number" step="0.5" min="0.5" class="w-full p-2.5 border rounded-xl text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">הערות / מקום ההכשרה</label>
-                            <input v-model="newPracticum.notes" type="text" placeholder="פירוט קצר..." class="w-full p-2.5 border rounded-xl text-sm">
-                        </div>
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-2.5 rounded-xl text-sm shadow-sm transition">
-                            הוסף דיווח
-                        </button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right border-collapse text-sm">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 text-xs font-bold">
-                                    <th class="p-3">תאריך</th>
-                                    <th class="p-3">סוג פעילות</th>
-                                    <th class="p-3 text-center">שעות</th>
-                                    <th class="p-3">הערות</th>
-                                    <th class="p-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <tr v-for="(entry, index) in practicumLog" :key="index" class="hover:bg-slate-50">
-                                    <td class="p-3 font-semibold">{{ entry.date }}</td>
-                                    <td class="p-3"><span class="badge" :class="getPracticumBadge(entry.type)">{{ entry.type }}</span></td>
-                                    <td class="p-3 text-center font-bold text-purple-700">{{ entry.hours }}</td>
-                                    <td class="p-3 text-slate-500">{{ entry.notes }}</td>
-                                    <td class="p-3 text-left">
-                                        <button @click="openEditPracticumModal(entry, index)" class="text-slate-400 hover:text-purple-600 transition ml-2.5" title="ערוך דיווח"><i class="fas fa-edit"></i></button>
-                                        <button @click="deletePracticumEntry(index)" class="text-slate-300 hover:text-red-500 transition" title="מחק"><i class="fas fa-trash-alt"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 8. טאב: שכר לימוד ותשלומים -->
-            <div v-if="currentTab === 'finance'" class="max-w-6xl mx-auto space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-                            <i class="fas fa-shekel-sign text-teal-600"></i>
-                            <span>שכר לימוד ותשלומים</span>
-                        </h1>
-                        <p class="text-sm text-slate-500">מעקב תשלומים, פריסת הוראות קבע ומלגות</p>
-                    </div>
-
-                    <div class="flex gap-4">
-                        <div class="card p-3 px-5 text-center border-teal-200 bg-teal-50/50">
-                            <div class="text-xs text-teal-700">סה"כ ששולם</div>
-                            <div class="text-2xl font-bold text-teal-800">₪{{ totalPaidAmount }}</div>
-                        </div>
-                        <div class="card p-3 px-5 text-center border-amber-200 bg-amber-50/50">
-                            <div class="text-xs text-amber-700">תשלומים ממתינים</div>
-                            <div class="text-2xl font-bold text-amber-800">₪{{ totalPendingAmount }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <form @submit.prevent="addPayment" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">תאריך פירעון</label>
-                            <input v-model="newPayment.date" required type="date" class="w-full p-2.5 border rounded-xl text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">עבור מה?</label>
-                            <input v-model="newPayment.description" required type="text" placeholder="למשל: תשלום שכר לימוד חודש 1" class="w-full p-2.5 border rounded-xl text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">סכום (₪)</label>
-                            <input v-model.number="newPayment.amount" required type="number" class="w-full p-2.5 border rounded-xl text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">סטטוס</label>
-                            <select v-model="newPayment.status" class="w-full p-2.5 border rounded-xl text-sm font-semibold">
-                                <option value="עתידי">עתידי / ממתין</option>
-                                <option value="שולם">שולם (הוראת קבע)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold p-2.5 rounded-xl text-sm shadow-sm transition">
-                            הוסף תשלום
-                        </button>
-                    </form>
-                </div>
-
-                <div class="card overflow-x-auto">
-                    <table class="w-full text-right border-collapse text-sm min-w-[500px]">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 text-xs font-bold">
-                                <th class="p-3">תאריך</th>
-                                <th class="p-3">תיאור</th>
-                                <th class="p-3">סכום</th>
-                                <th class="p-3">סטטוס</th>
-                                <th class="p-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr v-for="(pay, index) in payments" :key="index" class="hover:bg-slate-50">
-                                <td class="p-3 font-semibold">{{ pay.date }}</td>
-                                <td class="p-3">{{ pay.description }}</td>
-                                <td class="p-3 font-bold text-slate-900">₪{{ pay.amount }}</td>
-                                <td class="p-3">
-                                    <button @click="togglePaymentStatus(index)" class="badge cursor-pointer transition" :class="pay.status === 'שולם' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
-                                        {{ pay.status }}
-                                    </button>
-                                </td>
-                                <td class="p-3 text-left">
-                                    <button @click="deletePayment(index)" class="text-slate-300 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -2680,116 +2325,6 @@
             </div>
         </div>
 
-        <!-- מודאל עריכת תיעוד מטופל (Edit Patient Session Modal) -->
-        <div v-if="showEditPatientModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showEditPatientModal = false">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
-                        <i class="fas fa-user-edit text-purple-600"></i>
-                        <span>עריכת תיעוד פגישה טיפולית</span>
-                    </h3>
-                    <button @click="showEditPatientModal = false" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-                </div>
-
-                <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">קוד / כינוי מטופל:</label>
-                            <input v-model="editingPatientNote.patientCode" type="text" placeholder="למשל: דני א' (שם בדוי)" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">תאריך המפגש:</label>
-                            <input v-model="editingPatientNote.date" type="date" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">כלים ומוסיקה בשימוש במפגש:</label>
-                        <input v-model="editingPatientNote.musicalTools" type="text" placeholder="למשל: תוף מרים, פסנתר, אימפרוביזציה קולית..." class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">תיעוד המפגש, תגובות ותובנות קליניות:</label>
-                        <textarea v-model="editingPatientNote.summary" rows="4" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-purple-900 mb-1">נקודות להדרכה (סופרוויז'ן):</label>
-                        <textarea v-model="editingPatientNote.supervisionNotes" rows="2" placeholder="שאלות או דגשים להעלות מול המדריכה..." class="w-full p-2.5 border border-purple-200 rounded-xl text-sm bg-purple-50/50 focus:ring-2 focus:ring-purple-500"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 pt-1 border-t">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">תאריך פגישה הבאה:</label>
-                            <input v-model="editingPatientNote.nextDate" type="date" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">מטרה לפגישה הבאה:</label>
-                            <input v-model="editingPatientNote.nextSessionGoal" type="text" placeholder="למשל: העמקת שימוש במקצב" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-purple-500">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center pt-3 border-t">
-                    <button @click="showEditPatientModal = false" class="text-xs text-slate-500 hover:text-slate-700 font-bold px-4 py-2">
-                        ביטול
-                    </button>
-                    <button @click="saveEditedPatientNote" :disabled="!editingPatientNote.patientCode" class="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold px-5 py-2 rounded-xl text-sm shadow transition">
-                        שמור שינויים
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- מודאל עריכת דיווח פרקטיקום (Edit Practicum Modal) -->
-        <div v-if="showEditPracticumModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showEditPracticumModal = false">
-            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
-                        <i class="fas fa-edit text-emerald-600"></i>
-                        <span>עריכת דיווח שעות פרקטיקום</span>
-                    </h3>
-                    <button @click="showEditPracticumModal = false" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-                </div>
-
-                <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">תאריך:</label>
-                            <input v-model="editingPracticum.date" type="date" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">סוג פעילות:</label>
-                            <select v-model="editingPracticum.type" class="w-full p-2.5 border rounded-xl text-sm bg-white focus:ring-2 focus:ring-emerald-500">
-                                <option value="טיפול">טיפול ישיר</option>
-                                <option value="הדרכה">הדרכה (סופרוויז'ן)</option>
-                                <option value="ישיבת צוות">ישיבת צוות / תצפית</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">מספר שעות:</label>
-                        <input v-model.number="editingPracticum.hours" type="number" step="0.5" min="0.5" class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">פירוט והערות:</label>
-                        <input v-model="editingPracticum.notes" type="text" placeholder="פירוט המפגש או נושא ההדרכה..." class="w-full p-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500">
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center pt-3 border-t">
-                    <button @click="showEditPracticumModal = false" class="text-xs text-slate-500 hover:text-slate-700 font-bold px-4 py-2">
-                        ביטול
-                    </button>
-                    <button @click="saveEditedPracticum" :disabled="!editingPracticum.hours" class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold px-5 py-2 rounded-xl text-sm shadow transition">
-                        שמור שינויים
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- תפריט ניווט תחתון קבוע לסמארטפונים (Sticky Mobile Bottom Bar) -->
         <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-2xl px-2 py-1.5 flex justify-around items-center" style="padding-bottom: max(0.6rem, env(safe-area-inset-bottom, 0px));">
             <button @click="currentTab = 'today'" :class="currentTab === 'today' ? 'bg-blue-50 text-blue-700 font-extrabold shadow-2xs' : 'text-slate-500 font-medium'" class="flex flex-col items-center justify-center p-1.5 px-2 rounded-xl text-[10px] min-h-[46px] min-w-[50px] transition">
@@ -3141,10 +2676,7 @@
                         { key: 'schedule', label: 'מערכת שעות שנתית', icon: 'far fa-calendar-alt text-slate-500', badge: '26 ש"ש' },
                         { key: 'tasks', label: 'משימות ומבחנים', icon: 'fas fa-tasks text-amber-500' },
                         { key: 'lecturers', label: 'ספר מרצים וסגל', icon: 'fas fa-address-book text-purple-600', badge: '13 מרצים', badgeClass: 'bg-purple-50 text-purple-700 font-bold' },
-                        { key: 'patients', label: 'קליניקה ומטופלים', icon: 'fas fa-heartbeat text-rose-500' },
-                        { key: 'grades', label: 'ציונים וממוצע תואר', icon: 'fas fa-graduation-cap text-emerald-600' },
-                        { key: 'practicum', label: 'יומן פרקטיקום', icon: 'fas fa-user-clock text-purple-600' },
-                        { key: 'finance', label: 'שכר לימוד ותשלומים', icon: 'fas fa-shekel-sign text-teal-600' }
+                        { key: 'grades', label: 'ציונים וממוצע תואר', icon: 'fas fa-graduation-cap text-emerald-600' }
                     ],
                     lecturerSearchQuery: '',
                     activeReminderBanner: null,
