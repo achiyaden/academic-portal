@@ -12,10 +12,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>if (typeof Vue === 'undefined') { document.write('<scr' + 'ipt src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"><\/scr' + 'ipt>'); }</script>
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+        [v-cloak] { display: none !important; }
         body {
             font-family: 'Heebo', sans-serif;
             background-color: #f8fafc;
@@ -75,7 +77,7 @@
     </style>
 </head>
 <body class="min-h-[100dvh] h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50">
-    <div id="app" class="w-full h-full flex flex-col md:flex-row">
+    <div id="app" v-cloak class="w-full h-full flex flex-col md:flex-row">
         <!-- באנר תזכורת קופץ (Floating In-App Push Reminder) -->
         <transition enter-active-class="transform transition ease-out duration-300" enter-from-class="-translate-y-4 opacity-0" enter-to-class="translate-y-0 opacity-100" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="activeReminderBanner" class="fixed top-3 left-3 right-3 md:right-auto md:w-96 z-50 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white p-4 rounded-2xl shadow-2xl flex items-start justify-between gap-3 border border-white/20">
@@ -107,11 +109,15 @@
                 <h2 class="text-xl font-bold text-slate-900">עדן אחיה</h2>
                 <p class="text-xs font-semibold text-blue-600 bg-blue-50 py-1 px-2.5 rounded-full inline-block mt-1">שנה א' | תב"מ תשפ"ז</p>
                 <div class="mt-2 text-xs text-slate-500">תואר שני - טיפול במוסיקה</div>
-                <div class="mt-3">
+                <div class="mt-3 space-y-1.5">
                     <button @click="showDataTransferModal = true" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 px-3 py-1.5 rounded-xl font-medium transition flex items-center justify-center gap-1.5 mx-auto border border-slate-200 shadow-2xs" title="העברת נתונים בין דפדפנים וגיבוי">
                         <i class="fas fa-exchange-alt text-blue-600"></i>
                         <span>העברת נתונים / גיבוי</span>
                     </button>
+                    <div v-if="isGoogleDriveApp" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <i class="fab fa-google-drive text-emerald-600"></i>
+                        <span>{{ driveSaveStatus || 'מחובר ל-Google Drive' }}</span>
+                    </div>
                 </div>
 
 
@@ -1636,7 +1642,7 @@
                                 class="text-xs px-2.5 py-1.5 rounded-lg font-bold border transition"
                                 :class="recapSelectedDate === todayIsoDate ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'"
                             >
-                                <i class="fas fa-dot-circle text-[9px] text-emerald-300 ml-1"></i> היום (18/10 שיעור 2)
+                                <i class="fas fa-dot-circle text-[9px] text-emerald-300 ml-1"></i> היום ({{ todayHebrewShort }})
                             </button>
                             <button 
                                 @click="recapSelectedDate = '2026-10-11'"
@@ -1678,7 +1684,7 @@
                     <!-- שורת שבועות סמסטר א' - ימי שלישי -->
                     <div class="space-y-1 pt-1">
                         <div class="text-[11px] font-bold text-slate-600 flex items-center justify-between">
-                            <span><i class="far fa-calendar-alt text-blue-500 ml-1"></i> שבועות סמסטר א' - ימי שלישי (2 שיעורים):</span>
+                            <span><i class="far fa-calendar-alt text-blue-500 ml-1"></i> שבועות סמסטר א' - ימי שלישי (3 שיעורים):</span>
                             <span class="text-[10px] text-slate-400">13/10/26 עד 12/01/27</span>
                         </div>
                         <div class="flex flex-wrap gap-1">
@@ -2252,18 +2258,17 @@
                 <div class="flex justify-between items-center border-b pb-3">
                     <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
                         <i class="fas fa-bell text-amber-500"></i>
-                        <span>מערך תזכורות פוש (מחשב ופלאפון)</span>
+                        <span>הגדרות תזכורות והתראות (מחשב ויומן גוגל)</span>
                     </h3>
                     <button @click="showReminderInfoModal = false" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
                 </div>
 
                 <div class="space-y-4 text-xs text-slate-600">
-                    <!-- 1. במחשב -->
                     <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
                         <div class="font-bold text-slate-800 flex items-center justify-between">
                             <span class="flex items-center gap-1.5">
                                 <i class="fas fa-desktop text-blue-600"></i>
-                                <span>התראות פוש במחשב (בדפדפן)</span>
+                                <span>התראות קופצות במחשב (דפדפן Chrome)</span>
                             </span>
                             <span 
                                 class="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -2273,7 +2278,7 @@
                             </span>
                         </div>
                         <p class="text-slate-500 leading-relaxed">
-                            כאשר מוגדרת משימה עם תזכורת, תקפוץ הודעת Windows (Toast) עם צליל במסך המחשב.
+                            כאשר מוגדרת משימה עם תזכורת, תקפוץ התראה עם צליל במסך המחשב במועד שבחרת.
                         </p>
                         <button 
                             v-if="desktopNotificationPermission !== 'granted'" 
@@ -2284,36 +2289,14 @@
                         </button>
                     </div>
 
-                    <!-- 2. בטלפון -->
-                    <div class="bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-200/80 space-y-3">
-                        <div class="font-bold text-indigo-950 flex items-center justify-between">
-                            <span class="flex items-center gap-1.5">
-                                <i class="fas fa-mobile-alt text-indigo-600"></i>
-                                <span>התראות פוש ישירות למסך הנעילה בטלפון</span>
-                            </span>
-                            <span class="text-[10px] bg-indigo-200 text-indigo-900 font-bold px-2 py-0.5 rounded-full">סנכרון ענן</span>
+                    <div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-200/80 space-y-2">
+                        <div class="font-bold text-blue-950 flex items-center gap-1.5">
+                            <i class="fab fa-google text-blue-600"></i>
+                            <span>סנכרון תזכורות ליומן Google בנייד ובמחשב</span>
                         </div>
-                        <p class="text-indigo-900 leading-relaxed">
-                            כדי שכל תזכורת תקפוץ לך במסך הנעילה בטלפון בדיוק בזמן כמו באפליקציות רגילות:
+                        <p class="text-blue-900 leading-relaxed">
+                            לצד כל משימה או דדליין מופיע כפתור יומן גוגל (<i class="far fa-calendar-plus"></i>) שמאפשר להוסיף את המשימה ישירות ל-Google Calendar שלך בלחיצה אחת.
                         </p>
-                        <ol class="list-decimal list-inside space-y-1 text-indigo-950 font-medium">
-                            <li>התקן בטלפון את אפליקציית <strong>ntfy</strong> החינמית (באייפון ב-App Store או באנדרואיד ב-Google Play).</li>
-                            <li>באפליקציה לחץ על <strong>+ (הוסף נושא)</strong> והדבק את ערוץ התזכורות שלך:</li>
-                        </ol>
-
-                        <div class="flex gap-2">
-                            <input :value="syncChannel + '_reminders'" readonly type="text" class="w-full p-2 border rounded-lg text-xs font-mono font-bold bg-white text-slate-800" dir="ltr">
-                            <button @click="copyToClipboard(syncChannel + '_reminders', 'שם ערוץ התזכורות הועתק!')" class="bg-indigo-600 text-white font-bold px-3 py-1 rounded-lg text-xs shrink-0">
-                                העתק
-                            </button>
-                        </div>
-
-                        <div class="text-center pt-1">
-                            <div class="text-[11px] font-bold text-indigo-900 mb-1">או סרוק להצטרפות מיידית בטלפון:</div>
-                            <div class="bg-white p-2 rounded-xl border border-indigo-200 inline-block shadow-xs">
-                                <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent('https://ntfy.sh/' + syncChannel + '_reminders')" alt="Reminders QR" class="w-32 h-32 mx-auto">
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -2360,6 +2343,51 @@
     <script>
         const { createApp } = Vue;
 
+        // עטיפה בטוחה ל-localStorage שמונעת קריסות בדפדפן כרום, מצב מוגבל או חלונית Google Drive (Apps Script Iframe)
+        const safeStorage = {
+            _mem: {},
+            getItem(key) {
+                try {
+                    if (typeof window !== 'undefined' && window.localStorage) {
+                        const val = window.localStorage.getItem(key);
+                        if (val !== null) return val;
+                    }
+                } catch (e) {}
+                return this._mem[key] !== undefined ? this._mem[key] : null;
+            },
+            setItem(key, val) {
+                const strVal = String(val);
+                this._mem[key] = strVal;
+                try {
+                    if (typeof window !== 'undefined' && window.localStorage) {
+                        window.localStorage.setItem(key, strVal);
+                    }
+                } catch (e) {}
+            },
+            removeItem(key) {
+                delete this._mem[key];
+                try {
+                    if (typeof window !== 'undefined' && window.localStorage) {
+                        window.localStorage.removeItem(key);
+                    }
+                } catch (e) {}
+            }
+        };
+
+        function safeJsonParse(str, fallback) {
+            if (!str || typeof str !== 'string') return fallback;
+            try {
+                const parsed = JSON.parse(str);
+                return (parsed !== null && parsed !== undefined) ? parsed : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function deepClone(obj) {
+            return JSON.parse(JSON.stringify(obj));
+        }
+
         // מערכת שעות מלאה של שנה א' (מעודכנת כולל חדרים וקורס הדרכה קבוצתית)
         const scheduleData = [
             // סמסטר א'
@@ -2396,17 +2424,17 @@
             { id: 23, semester: 'Summer', day: 'ראשון', time: 'מרוכז יוני-יולי', name: 'עבודה עם הורים (מוסיקה וביבליותרפיה)', lecturer: 'ד"ר קרן טל פון שטראוס', room: 'מכללה', credits: 2 }
         ];
 
-        // 19 קורסי התואר המלאים (54 נקודות זכות כולל הדרכה קבוצתית לעבודה מעשית)
+        // 19 קורסי התואר המלאים (כולל הדרכה קבוצתית לעבודה מעשית)
         const academicCourses = [
             { code: '3094119', name: 'תיאוריות, מודלים וגישות בטיפול במוסיקה', lecturer: 'ד"ר אילנה ברוך', credits: 4, semesterLabel: 'שנתי', room: 'ד103', scheduleTime: 'יום א\' 08:30-10:00' },
             { code: '3093132', name: 'מוסיקה שנה א - היבטים פסיכודינמיים', lecturer: 'גב\' נעה אלזס', credits: 2, semesterLabel: 'סמסטר א\'', room: 'ד103', scheduleTime: 'יום א\' 10:15-11:45' },
             { code: '3093122', name: 'טיפול במוסיקה - דינמיקה קבוצתית', lecturer: 'ד"ר מאיה יאיר', credits: 4, semesterLabel: 'שנתי', room: 'ד103', scheduleTime: 'יום א\' 12:15-13:45' },
-            { code: '3093103', name: 'מבוא לטיפול במוסיקה', lecturer: 'ד"ר מאיה מרום קרסל', credits: 2, semesterLabel: 'סמסטר א\'', room: 'ד103', scheduleTime: 'יום א\' 14:15-15:45' },
+            { code: '3093103', name: 'מבוא לטיפול במוסיקה', lecturer: 'ד"ר מאיה מרום', credits: 2, semesterLabel: 'סמסטר א\'', room: 'ד103', scheduleTime: 'יום א\' 14:15-15:45' },
             { code: '3093107', name: 'מתאוריה למעשה: טכניקות בטיפול במוסיקה', lecturer: 'ד"ר חוה וייס', credits: 2, semesterLabel: 'סמסטר א\'', room: 'ד103', scheduleTime: 'יום א\' 16:00-17:30' },
             { code: '3093128', name: 'המוזיקה של המטפל', lecturer: 'מר דוד שוורץ', credits: 2, semesterLabel: 'סמסטר א\'', room: 'ד103', scheduleTime: 'יום א\' 17:45-19:15' },
             { code: '3093140', name: 'הדרכה קבוצתית על עבודה מעשית', lecturer: 'שירה פרידמן-רייך', credits: 2, semesterLabel: 'שנתי', room: '105ד', scheduleTime: 'יום ג\' 14:15-15:45' },
             { code: '3094130', name: 'הטיפול הפסיכודינמי (מוסיקה וביבליותרפיה)', lecturer: 'ד"ר דניה מלניק', credits: 4, semesterLabel: 'שנתי', room: 'מ-501ד', scheduleTime: 'יום ג\' 16:00-17:30' },
-            { code: '3093129', name: 'סמינריון טיפול במוסיקה בראיה נוירולוגית', lecturer: 'ד"ר מאיה מרום קרסל', credits: 4, semesterLabel: 'שנתי', room: 'ד103', scheduleTime: 'יום ג\' 17:45-19:15' },
+            { code: '3093129', name: 'סמינריון טיפול במוסיקה בראיה נוירולוגית', lecturer: 'ד"ר מאיה מרום', credits: 4, semesterLabel: 'שנתי', room: 'ד103', scheduleTime: 'יום ג\' 17:45-19:15' },
             { code: '3094145', name: 'פיתוח חשיבה מבוססת נתונים (מחקר כמותני)', lecturer: 'פרופ\' עינת גוברמן', credits: 2, semesterLabel: 'סמסטר א\'', room: 'מקוון', scheduleTime: 'א-סינכרוני' },
             { code: '2093102', name: 'עבודה מעשית טיפולית (פרקטיקום שנה א\')', lecturer: 'ערן אצילי (מדריך אישי)', credits: 10, semesterLabel: 'שנתי', room: 'שדה', scheduleTime: '10 שעות שבועיות' },
             { code: '3094134', name: 'אתיקה בטיפול באומנויות', lecturer: 'ד"ר מאיה מרום', credits: 2, semesterLabel: 'בין הסמסטרים', room: '101 / זום', scheduleTime: '24/1, 31/1, 7/2' },
@@ -2419,148 +2447,621 @@
             { code: '3094161', name: 'עבודה עם הורים (מוסיקה וביבליותרפיה)', lecturer: 'ד"ר קרן טל', credits: 2, semesterLabel: 'קיץ', room: 'מכללה', scheduleTime: 'מרוכז יוני-יולי' }
         ];
 
-        // מאגר פרטי מרצים ודרכי התקשרות (כולל אפשרות עריכה וסנכרון מלא)
+        // כל הנתונים האישיים של עדן מוטמעים מראש בקוד כברירת מחדל מאוחדת ובטוחה!
         const initialLecturers = {
-            'אילנה ברוך': {
-                name: 'ד"ר אילנה ברוך',
-                phone: '0507466362',
-                email: 'eebaruch@gmail.com',
-                role: 'מרצה בכירה, ראש תחום טיפול במוסיקה',
-                room: 'ד103',
-                officeHours: 'בתיאום מראש בימי ראשון',
-                notes: ''
+            "אילנה ברוך": {
+                        "name": "ד\"ר אילנה ברוך",
+                        "phone": "0507466362",
+                        "email": "eebaruch@gmail.com",
+                        "role": "מרצה בכירה, ראש תחום טיפול במוסיקה",
+                        "room": "ד103",
+                        "officeHours": "בתיאום מראש בימי ראשון",
+                        "notes": ""
             },
-            'נעה אלזס': {
-                name: 'גב\' נעה אלזס',
-                phone: '052-346-8708',
-                email: 'noaelzas.mt@gmail.com',
-                role: 'מרצה - מוסיקה שנה א היבטים פסיכודינמיים / הקול ככלי טיפולי',
-                room: 'ד103',
-                officeHours: 'בימי ראשון לאחר השיעור',
-                notes: ''
+            "נעה אלזס": {
+                        "name": "גב' נעה אלזס",
+                        "phone": "052-346-8708",
+                        "email": "noaelzas.mt@gmail.com",
+                        "role": "מרצה - מוסיקה שנה א היבטים פסיכודינמיים / הקול ככלי טיפולי",
+                        "room": "ד103",
+                        "officeHours": "בימי ראשון לאחר השיעור",
+                        "notes": ""
             },
-            'שירה פרידמן-רייך': {
-                name: 'שירה פרידמן-רייך',
-                phone: '054-485-5367',
-                email: '',
-                role: 'מדריכה קבוצתית לעבודה מעשית (פרקטיקום)',
-                room: '105ד',
-                officeHours: 'ימי שלישי 14:15-15:45',
-                notes: 'הדרכה קבוצתית על עבודה מעשית'
+            "שירה פרידמן-רייך": {
+                        "name": "שירה פרידמן-רייך",
+                        "phone": "054-485-5367",
+                        "email": "shirar@dyellin.ac.il",
+                        "role": "מדריכה קבוצתית לעבודה מעשית (פרקטיקום)",
+                        "room": "105ד",
+                        "officeHours": "ימי שלישי 14:15-15:45",
+                        "notes": "הדרכה קבוצתית על עבודה מעשית"
             },
-            'ערן אצילי': {
-                name: 'ערן אצילי',
-                phone: '050-880-8868',
-                email: '',
-                role: 'מדריך אישי לעבודה מעשית (פרקטיקום)',
-                room: 'שדה / הדרכה אישית',
-                officeHours: 'בתיאום אישי',
-                notes: 'מדריך אישי לעבודה מעשית'
+            "ערן אצילי": {
+                        "name": "ערן אצילי",
+                        "phone": "050-880-8868",
+                        "email": "",
+                        "role": "מדריך אישי לעבודה מעשית (פרקטיקום)",
+                        "room": "שדה / הדרכה אישית",
+                        "officeHours": "בתיאום אישי",
+                        "notes": "מדריך אישי לעבודה מעשית"
             },
-            'דוד שוורץ': {
-                name: 'מר דיויד (דוד) שוורץ',
-                phone: '0545844401',
-                email: '',
-                role: 'מרצה - המוזיקה של המטפל',
-                room: 'ד103',
-                officeHours: 'ימי ראשון 17:45-19:15',
-                notes: ''
+            "דוד שוורץ": {
+                        "name": "מר דיויד (דוד) שוורץ",
+                        "phone": "0545844401",
+                        "email": "",
+                        "role": "מרצה - המוזיקה של המטפל",
+                        "room": "ד103",
+                        "officeHours": "ימי ראשון 17:45-19:15",
+                        "notes": ""
             },
-            'מאיה יאיר': {
-                name: 'ד"ר מאיה יאיר',
-                phone: '0523682169',
-                email: '',
-                role: 'מרצה - דינמיקה קבוצתית',
-                room: 'ד103',
-                officeHours: 'ימי ראשון 12:15-13:45',
-                notes: ''
+            "מאיה יאיר": {
+                        "name": "ד\"ר מאיה יאיר",
+                        "phone": "0523682169",
+                        "email": "",
+                        "role": "מרצה - דינמיקה קבוצתית",
+                        "room": "ד103",
+                        "officeHours": "ימי ראשון 12:15-13:45",
+                        "notes": ""
             },
-            'מאיה מרום': {
-                name: 'ד"ר מאיה מרום קרסל',
-                phone: '',
-                email: '',
-                role: 'מרצה - מבוא לטיפול במוסיקה, סמינריון, אתיקה',
-                room: 'ד103 / 101',
-                officeHours: '',
-                notes: ''
+            "מאיה מרום": {
+                        "name": "ד\"ר מאיה מרום קרסל",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - מבוא לטיפול במוסיקה, סמינריון, אתיקה",
+                        "room": "ד103 / 101",
+                        "officeHours": "",
+                        "notes": ""
             },
-            'חוה וייס': {
-                name: 'ד"ר חוה וייס',
-                phone: '',
-                email: '',
-                role: 'מרצה - מתאוריה למעשה: טכניקות בטיפול במוסיקה',
-                room: 'ד103',
-                officeHours: 'ימי ראשון 16:00-17:30',
-                notes: ''
+            "חוה וייס": {
+                        "name": "ד\"ר חוה וייס",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - מתאוריה למעשה: טכניקות בטיפול במוסיקה",
+                        "room": "ד103",
+                        "officeHours": "ימי ראשון 16:00-17:30",
+                        "notes": ""
             },
-            'דניה מלניק': {
-                name: 'ד"ר דניה מלניק',
-                phone: '',
-                email: '',
-                role: 'מרצה - הטיפול הפסיכודינמי (מוסיקה וביבליותרפיה)',
-                room: 'מ-501ד',
-                officeHours: 'ימי שלישי 16:00-17:30',
-                notes: ''
+            "דניה מלניק": {
+                        "name": "ד\"ר דניה מלניק",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - הטיפול הפסיכודינמי (מוסיקה וביבליותרפיה)",
+                        "room": "מ-501ד",
+                        "officeHours": "ימי שלישי 16:00-17:30",
+                        "notes": ""
             },
-            'עינת גוברמן': {
-                name: 'פרופ\' עינת גוברמן',
-                phone: '',
-                email: '',
-                role: 'מרצה - פיתוח חשיבה מבוססת נתונים (מחקר כמותני)',
-                room: 'למידה מרחוק',
-                officeHours: 'בתיאום במייל',
-                notes: ''
+            "עינת גוברמן": {
+                        "name": "פרופ' עינת גוברמן",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - פיתוח חשיבה מבוססת נתונים (מחקר כמותני)",
+                        "room": "למידה מרחוק",
+                        "officeHours": "בתיאום במייל",
+                        "notes": ""
             },
-            'אריאלה גבעון': {
-                name: 'פרופ\' אריאלה גבעון',
-                phone: '',
-                email: '',
-                role: 'מרצה - שיטות מחקר איכותניות',
-                room: 'למידה מרחוק',
-                officeHours: 'בתיאום במייל',
-                notes: ''
+            "אריאלה גבעון": {
+                        "name": "פרופ' אריאלה גבעון",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - שיטות מחקר איכותניות",
+                        "room": "למידה מרחוק",
+                        "officeHours": "בתיאום במייל",
+                        "notes": ""
             },
-            'קרן טל': {
-                name: 'ד"ר קרן טל פון שטראוס',
-                phone: '',
-                email: '',
-                role: 'מרצה - תורת הטיפול / עבודה עם הורים',
-                room: 'ד101',
-                officeHours: '',
-                notes: ''
+            "קרן טל": {
+                        "name": "ד\"ר קרן טל פון שטראוס",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - תורת הטיפול / עבודה עם הורים",
+                        "room": "ד101",
+                        "officeHours": "",
+                        "notes": ""
             },
-            'אורי אהרונוב': {
-                name: 'ד"ר אורי אהרונוב',
-                phone: '',
-                email: '',
-                role: 'מרצה - אילתור קליני',
-                room: 'ד103',
-                officeHours: 'ימי שלישי 17:45-19:15',
-                notes: ''
+            "אורי אהרונוב": {
+                        "name": "ד\"ר אורי אהרונוב",
+                        "phone": "",
+                        "email": "",
+                        "role": "מרצה - אילתור קליני",
+                        "room": "ד103",
+                        "officeHours": "ימי שלישי 17:45-19:15",
+                        "notes": ""
             }
-        };
+};
+        const initialCourseSyllabus = {
+            "3094119": "בחלק של הערכת הציון בקורס מופיעים שלושה מרכיבים עיקריים:\n\n1. נוכחות והשתתפות פעילה - 10%\nחובת נוכחות מלאה והשתתפות פעילה בשיעורים.\nמצופה מעורבות בדיונים ובהתנסויות המעשיות.\nנוכחות והשתתפות נחשבות תנאי הכרחי להצלחת הקורס.\n2. כתיבת התרשמות אישית ויישומית לכל מודל טיפולי - 30%\n\nלאחר כל מודל יש להגיש עבודה קצרה שבה:\n\nמתארים לאילו היבטים במודל התחברתם ומדוע.\nמסבירים כיצד ניתן ליישם את המודל בעבודה הטיפולית.\nמציינים טכניקות מהמודל שבהן תשתמשו וכיצד הן תומכות במטרות הטיפול.\nמציעים מפגש טיפולי או סדרת מפגשים בהתאם למודל, תוך התייחסות לתפקיד המטפל ולתפקיד המוזיקה בתהליך.\nמשלבים מקורות אקדמיים ומקפידים על כללי APA.\n\nדרישות טכניות:\n\nכ־2 עמודים לכל מודל.\nגופן David בגודל 12.\nרווח 1.5 בין השורות.\nהגשה עד שבועיים מסיום לימוד כל מודל.\nהגשה מאוחרת תגרור הורדה בציון.\n3. תרגיל חווייתי מסכם - 60%\nמטרת התרגיל היא לסייע בהפנמת המודלים והגישות שנלמדו במהלך השנה.\nהסטודנטים ידגימו סיטואציה טיפולית באמצעות משחק תפקידים.\nההדגמה תתבסס על שיטות וטכניקות שנלמדו בקורס.\nבמהלך ההדגמות יידרשו לענות על שאלות הבהרה.\n\nסיכום חלוקת הציון:\n\nנוכחות והשתתפות: 10%\nעבודות התרשמות ויישום: 30%\nתרגיל חווייתי מסכם: 60%",
+            "3094130": "שני מטלות + מבחן סופי סוף סמסטר ב: מטלה א' – 5 נקודות. מטלה ב' – 10 נק'. (15 נק' סה\"כ).\n\nמטלות = 15 נק'\nמבחן = 85 נק'"
+};
+        const initialCourseLessonNotes = {
+            "3093103": {
+                        "2": {
+                                    "date": "2026-10-18",
+                                    "topic": "הסטוריה של הטיפול במוזיקה",
+                                    "text": "הסטוריה של הטיפול במוזיקה:\nלמדנו לעומק על העבר המוזיקאלי של הטיפול במוזיקה מיוון העתיקה כולל הנצרות סין יהדות ואסלאם",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792482728454_oten",
+                                                            "title": "הסטוריה של הטיפול במוזיקה",
+                                                            "text": "למדנו לעומק על העבר המוזיקאלי של הטיפול במוזיקה מיוון העתיקה כולל הנצרות סין יהדות ואסלאם",
+                                                            "createdAt": "20.10.2026 10:52",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "3": {
+                                    "date": "2026-10-25",
+                                    "topic": "תחילת הממסדות של הטיפול במוזיקה",
+                                    "text": "ראשית הטיפול במוזיקה:\nבשיעור למדנו על תחילת הרגולציה של הטיפול במוזיקה. מעבר בין העת העתיקה לזמנינו אנו תחילת הטיפול במוזיקה בבתי המשוגעים כמוזיקה ונגינה. לאחר מלחמת העולם השניה 1944 התחילו התוכניות הראשונות לאחר מכן 1950 התחילו האיגודים הרשמיים.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792935658929_x0fz",
+                                                            "title": "ראשית הטיפול במוזיקה",
+                                                            "text": "בשיעור למדנו על תחילת הרגולציה של הטיפול במוזיקה. מעבר בין העת העתיקה לזמנינו אנו תחילת הטיפול במוזיקה בבתי המשוגעים כמוזיקה ונגינה. לאחר מלחמת העולם השניה 1944 התחילו התוכניות הראשונות לאחר מכן 1950 התחילו האיגודים הרשמיים.",
+                                                            "createdAt": "25.10.2026 15:40",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "4": {
+                                    "date": "2026-11-01",
+                                    "topic": "עשרת המושגים טיפול במוזיקה",
+                                    "text": "מעבר על 10 מושגים של טיפול במוזיקה כמו מילון אוניברסלי:\nבשיעור עברנו על 10 המושגים המרכזיים בטיפול במוזיקה. תיאוריה - תיאור - ניתוח - פרשנות - שטחים - גישה - מודל - טכניקה - פרוצדורה - מתודה . \nעברנו אחד אחד הסברנו את ההבדלים ובסיום השיעור עברנו על אוכלוסיות שונות - פגיות ותינוקות ואמהות.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1793540739220_4hrq",
+                                                            "title": "מעבר על 10 מושגים של טיפול במוזיקה כמו מילון אוניברסלי",
+                                                            "text": "בשיעור עברנו על 10 המושגים המרכזיים בטיפול במוזיקה. תיאוריה - תיאור - ניתוח - פרשנות - שטחים - גישה - מודל - טכניקה - פרוצדורה - מתודה . \nעברנו אחד אחד הסברנו את ההבדלים ובסיום השיעור עברנו על אוכלוסיות שונות - פגיות ותינוקות ואמהות.",
+                                                            "createdAt": "1.11.2026 15:45",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "5": {
+                                    "date": "2026-11-08",
+                                    "topic": "גישות ומודלים בטיפול במוזיקה",
+                                    "text": "3 גישות נלמדו - רפואית טיפולית - קוגניטיבית התנהגותית - טיפול בקהילה:\nלמדנו על 3 גישות מעניינות רפואית טיפולית עם המודל של טיפול בעזרת הקצב והנגינה והיכולת להשפיע פיזית ונוירולוגית. הקוגניטיבית בעזרת חיזוקים ומתן פרס שהיא הנגינה. וכמובן הקהילתי לטיפול במוזיקה.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1794145008176_om5h",
+                                                            "title": "3 גישות נלמדו - רפואית טיפולית - קוגניטיבית התנהגותית - טיפול בקהילה",
+                                                            "text": "למדנו על 3 גישות מעניינות רפואית טיפולית עם המודל של טיפול בעזרת הקצב והנגינה והיכולת להשפיע פיזית ונוירולוגית. הקוגניטיבית בעזרת חיזוקים ומתן פרס שהיא הנגינה. וכמובן הקהילתי לטיפול במוזיקה.",
+                                                            "createdAt": "8.11.2026 15:36",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        }
+            },
+            "3093107": {
+                        "3": {
+                                    "date": "2026-10-25",
+                                    "topic": "סיום החלק של כלי הנגינה ",
+                                    "text": "כלי נגינה השלכתי - משפחה + ילדים:\nהיו שני תרגלים מאוד נחמדים - 1. הנער\\ילד מתבגר בוחר כלי נגינה שמביאים את המשפחה שלו לחדר - כמובן בצורה יותר מזמינה . כל כלי מעיד על מה המקום שלו של ההורים האחים והדינמיקה של המשפחה בעזרת המוזיקה. כך הוא מנגן את הכלים שרוצה ואני את השאר והוא נותן לי הוראות מה לנגן ואיך .\n2. ילדים - סיפור הארנב ממושי - המחשה נגינה ותקשורת בין כלי הנגינה שבסיפור - כל ילד וחר כלי נגינה שמתחבר לדמות בסיפור ודרכה אומר על עצמו משהו. עם תמונות על הכלים להמחשה ולהתחבר הם צובעים את הדמויות בעצמם.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1793050136140_5qfb",
+                                                            "title": "כלי נגינה השלכתי - משפחה + ילדים",
+                                                            "text": "היו שני תרגלים מאוד נחמדים - 1. הנער\\ילד מתבגר בוחר כלי נגינה שמביאים את המשפחה שלו לחדר - כמובן בצורה יותר מזמינה . כל כלי מעיד על מה המקום שלו של ההורים האחים והדינמיקה של המשפחה בעזרת המוזיקה. כך הוא מנגן את הכלים שרוצה ואני את השאר והוא נותן לי הוראות מה לנגן ואיך .\n2. ילדים - סיפור הארנב ממושי - המחשה נגינה ותקשורת בין כלי הנגינה שבסיפור - כל ילד וחר כלי נגינה שמתחבר לדמות בסיפור ודרכה אומר על עצמו משהו. עם תמונות על הכלים להמחשה ולהתחבר הם צובעים את הדמויות בעצמם.",
+                                                            "createdAt": "26.10.2026 23:28",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "1": {
+                                    "date": "2026-10-11",
+                                    "topic": "מבוא לקצב בטיפול במוסיקה",
+                                    "text": "הבסיס הקצבי בטיפול:\nהכל קצב אם לא הכל היה תוהו ובוהו - לבדוק לגבי טקסט בריאת העולם בתורה לזהות מבנה קצבי ריתמי קבוע בפסוקים . מחקר.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_3093107_l1",
+                                                            "title": "הבסיס הקצבי בטיפול",
+                                                            "text": "הכל קצב אם לא הכל היה תוהו ובוהו - לבדוק לגבי טקסט בריאת העולם בתורה לזהות מבנה קצבי ריתמי קבוע בפסוקים . מחקר.",
+                                                            "createdAt": "11.10.2026 16:30",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "2": {
+                                    "date": "2026-10-18",
+                                    "topic": "סיום קצב + השלכה והמשמעות שלה בהקשר של כלי נגינה",
+                                    "text": "סיום קצב + השלכה והמשמעות שלה בהקשר של כלי נגינה:\nבשיעור למדנו וסיימנו את הנושא של הקצב, האיסוף הריכוז השימוש בקצב למתן רוגע וביטחון בחדר הטיפולי.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_3093107_l2",
+                                                            "title": "סיום קצב + השלכה והמשמעות שלה בהקשר של כלי נגינה",
+                                                            "text": "בשיעור למדנו וסיימנו את הנושא של הקצב, האיסוף הריכוז השימוש בקצב למתן רוגע וביטחון בחדר הטיפולי.",
+                                                            "createdAt": "18.10.2026 17:15",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        }
+            },
+            "3093128": {
+                        "2": {
+                                    "date": "2026-10-18",
+                                    "topic": "",
+                                    "text": "השיעור התמקד. \n",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_3093128_2",
+                                                            "title": "סיכום שיעור 2",
+                                                            "text": "השיעור התמקד.",
+                                                            "createdAt": "2026-10-18",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "4": {
+                                    "date": "2026-11-01",
+                                    "topic": "",
+                                    "text": "עיבוד בוקר של המכתבים שהיו - המון תובנות על כך שהמוזיקה שלנו מילה טובה יכולה לשנות וכו.. \nמטלה 1 - לשבוע הבא על מציאת סגנון מוזיקה שפחות מתחברים או שלא מוכר לנו - למצוא מישהו שבוער בו סגנון המוזיקה ולדבר איתו שיחה של חצי שעה - אחר כך לכתוב על זה רילפקציה למודל . \nמטלה 2 - לעד  עוד חודשיים - ללכת להופעה של סגנון מוזיקה שאנחנו לא כל כך שומעים. ",
+                                    "notes": [
+                                                {
+                                                            "id": "note_legacy_4",
+                                                            "title": "סיכום שיעור",
+                                                            "text": "עיבוד בוקר של המכתבים שהיו - המון תובנות על כך שהמוזיקה שלנו מילה טובה יכולה לשנות וכו.. \nמטלה 1 - לשבוע הבא על מציאת סגנון מוזיקה שפחות מתחברים או שלא מוכר לנו - למצוא מישהו שבוער בו סגנון המוזיקה ולדבר איתו שיחה של חצי שעה - אחר כך לכתוב על זה רילפקציה למודל . \nמטלה 2 - לעד  עוד חודשיים - ללכת להופעה של סגנון מוזיקה שאנחנו לא כל כך שומעים. ",
+                                                            "createdAt": "2026-11-01",
+                                                            "showInCalendar": true
+                                                }
+                                    ]
+                        }
+            },
+            "3093132": {
+                        "1": {
+                                    "date": "2026-10-11",
+                                    "topic": "שיר עם משמעות",
+                                    "text": "שיר עם משמעות:\nבמקום הכירות רגילה כל אחד בחר שיר הממחיש את מה שהוא מרגיש לקראת תחילת שנה, בחרתי את השיר של ספיירו גיירה, מורנינג משהו, היה נחמד וקליל וכיף.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792481440724_h3wj",
+                                                            "title": "שיר עם משמעות",
+                                                            "text": "במקום הכירות רגילה כל אחד בחר שיר הממחיש את מה שהוא מרגיש לקראת תחילת שנה, בחרתי את השיר של ספיירו גיירה, מורנינג משהו, היה נחמד וקליל וכיף.",
+                                                            "createdAt": "20.10.2026 10:30",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "2": {
+                                    "date": "2026-10-18",
+                                    "topic": "כלי אהוב וכלי לא אהוב",
+                                    "text": "אכזבה מהשיעור:\nאז השיעור התחיל בדיבור על מה היה שבוע שעבר האם עזר או לא ובאמת התחושה הייתה דיי טובה. עברנו לדבר על כלי אהוב ולא אהוב כדי להמחיש איך מתוך משימה שכאילו לא קשורה ספציפית לשיתוף על עצמי אני משתף הרבה על עצמי. השיתופים התחילו והאכזבה עלתה מרוב ציניות .. היה לא כל כך כיף ודיי נסגרתי כשהתחילו להתווכח איתי על התחושות שלי על חלילית, בהמשך יצרתי קשר עם מיכל והייתה הבנה ושמחה על השיחה. \nמקווה לשיפור לשיעור הבא. כתבתי רפלקציה ושלחתי כבר לנעה.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792481383354_goms",
+                                                            "title": "אכזבה מהשיעור",
+                                                            "text": "אז השיעור התחיל בדיבור על מה היה שבוע שעבר האם עזר או לא ובאמת התחושה הייתה דיי טובה. עברנו לדבר על כלי אהוב ולא אהוב כדי להמחיש איך מתוך משימה שכאילו לא קשורה ספציפית לשיתוף על עצמי אני משתף הרבה על עצמי. השיתופים התחילו והאכזבה עלתה מרוב ציניות .. היה לא כל כך כיף ודיי נסגרתי כשהתחילו להתווכח איתי על התחושות שלי על חלילית, בהמשך יצרתי קשר עם מיכל והייתה הבנה ושמחה על השיחה. \nמקווה לשיפור לשיעור הבא. כתבתי רפלקציה ושלחתי כבר לנעה.",
+                                                            "createdAt": "20.10.2026 10:29",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "3": {
+                                    "date": "2026-10-25",
+                                    "topic": "",
+                                    "text": "",
+                                    "showInCalendar": false,
+                                    "notes": []
+                        },
+                        "4": {
+                                    "date": "2026-11-01",
+                                    "topic": "עיבוד של שיעור קודם התנסות בכלי מוזיקה + תרגיל חדש",
+                                    "text": "הערה 2:\nריפלקציה בקצרה - היה לי קשה להקשיב ולנסות לשים לב לפרטים ללא פרשנות. שמתי לב על עצמי שאני כל הזמן חושב על מה חושבים עליי מה להגיד איך להיות מדוייק שלא יחשבו עליי דברים מוזרים או לא טובים.\n\n---\n\nתרגול חדש של הקשבה:\nבשיעור תרגלנו הקשבה וקריאת בין השורות של המטופל להקשיב למה שלא נאמר להקשיב לתנועות למנגינת דיבור וכו.. \nריפלקציה - מה היה לי משמעותי מהתרגיל דבר שלמדתי על עצמי מה תובנה שעלתה לי.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1793527348412_tuah",
+                                                            "title": "הערה 2",
+                                                            "text": "ריפלקציה בקצרה - היה לי קשה להקשיב ולנסות לשים לב לפרטים ללא פרשנות. שמתי לב על עצמי שאני כל הזמן חושב על מה חושבים עליי מה להגיד איך להיות מדוייק שלא יחשבו עליי דברים מוזרים או לא טובים.",
+                                                            "createdAt": "1.11.2026 12:02",
+                                                            "showInCalendar": false
+                                                },
+                                                {
+                                                            "id": "note_1793527275237_8fk4",
+                                                            "title": "תרגול חדש של הקשבה",
+                                                            "text": "בשיעור תרגלנו הקשבה וקריאת בין השורות של המטופל להקשיב למה שלא נאמר להקשיב לתנועות למנגינת דיבור וכו.. \nריפלקציה - מה היה לי משמעותי מהתרגיל דבר שלמדתי על עצמי מה תובנה שעלתה לי.",
+                                                            "createdAt": "1.11.2026 12:01",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "5": {
+                                    "date": "2026-11-08",
+                                    "topic": "הקשבה - סיום דיון על הקשבה + התחלת נגינה של דמות מהעבר",
+                                    "text": "נגינה של דמות מהחיים שלי:\nכל אחד בחר דמות מהחיים שלו שעושה לו משהו גרמה לו משהו וניגן אותה.\nריפלקציה - היה מדהים לראות איך הנגינה שלנו (אני עוד לא ניגנתי אבל של אחרים) מצליחה להביע דמות וממש חוויה שלמה של הקשר שלנו איתה איך אנו אומרים דברים בנגינה אפילו בלי שאנחנו לפעמים שמים לב או מאמירה קטנה או נגינה בצורה מסויימת כמה זה אומר כל הדמות ועלינו ממש.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1794144708510_usjp",
+                                                            "title": "נגינה של דמות מהחיים שלי",
+                                                            "text": "כל אחד בחר דמות מהחיים שלו שעושה לו משהו גרמה לו משהו וניגן אותה.\nריפלקציה - היה מדהים לראות איך הנגינה שלנו (אני עוד לא ניגנתי אבל של אחרים) מצליחה להביע דמות וממש חוויה שלמה של הקשר שלנו איתה איך אנו אומרים דברים בנגינה אפילו בלי שאנחנו לפעמים שמים לב או מאמירה קטנה או נגינה בצורה מסויימת כמה זה אומר כל הדמות ועלינו ממש.",
+                                                            "createdAt": "8.11.2026 15:31",
+                                                            "showInCalendar": false,
+                                                            "updatedAt": "8.11.2026 15:34"
+                                                }
+                                    ]
+                        }
+            },
+            "3094119": {
+                        "2": {
+                                    "date": "2026-10-18",
+                                    "topic": "מודלים - התחלת לימוד מעמיק",
+                                    "text": "כניסה למודלים המרכזיים לטיפול במוזיקה:\nהשיעור עסק ב**גישות ומודלים מרכזיים בטיפול במוזיקה**, תוך התמקדות ברצף שבין **\"מוזיקה כטיפול\"** (המוזיקה עצמה ככוח המרפא והעיקרי, לעיתים ללא צורך במילים) לבין **\"מוזיקה כאמצעי טיפול\"** (המוזיקה כטריגר לעיבוד רגשי ופסיכואנליטי). נסקרו הצירים לאפיון התערבויות (אקטיבי מול רספטיבי, מובנה מול זורם), לצד **חמשת המודלים הבין-לאומיים** שהוכרו בוושינגטון 1999 (התנהגותי, אנליטי-פריסטלי, נורדוף-רובינס, GIM-בוני, ובננזון-ISO), ותת-גישות עכשוויות כמו נוירולוגית, מבוססת-משאבים וקהילתית. חלקו המרכזי של השיעור הוקדש ל**מודל הישראלי של ד\"ר חווה סקלס** (מדוד ילין) – גישה הוליסטית-התפתחותית הרואה את האדם כמכלול שלם, ומחברת בין מקצב, גוף-נפש (Soma & Psyche), התפתחות מוקדמת (ויניקוט ושטרן), סומטיקה וטקסי ריפוי מסורתיים.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792481762718_d73b",
+                                                            "title": "כניסה למודלים המרכזיים לטיפול במוזיקה",
+                                                            "text": "השיעור עסק ב**גישות ומודלים מרכזיים בטיפול במוזיקה**, תוך התמקדות ברצף שבין **\"מוזיקה כטיפול\"** (המוזיקה עצמה ככוח המרפא והעיקרי, לעיתים ללא צורך במילים) לבין **\"מוזיקה כאמצעי טיפול\"** (המוזיקה כטריגר לעיבוד רגשי ופסיכואנליטי). נסקרו הצירים לאפיון התערבויות (אקטיבי מול רספטיבי, מובנה מול זורם), לצד **חמשת המודלים הבין-לאומיים** שהוכרו בוושינגטון 1999 (התנהגותי, אנליטי-פריסטלי, נורדוף-רובינס, GIM-בוני, ובננזון-ISO), ותת-גישות עכשוויות כמו נוירולוגית, מבוססת-משאבים וקהילתית. חלקו המרכזי של השיעור הוקדש ל**מודל הישראלי של ד\"ר חווה סקלס** (מדוד ילין) – גישה הוליסטית-התפתחותית הרואה את האדם כמכלול שלם, ומחברת בין מקצב, גוף-נפש (Soma & Psyche), התפתחות מוקדמת (ויניקוט ושטרן), סומטיקה וטקסי ריפוי מסורתיים.",
+                                                            "createdAt": "20.10.2026 10:36",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        },
+                        "3": {
+                                    "date": "2026-10-25",
+                                    "topic": "המודל היצירתי - נורדוף ורובינס",
+                                    "text": "סיכום קצרצר:\nבשיעור למדנו וצללנו לשיטה של נורדוף ורובינס - המודל היצירתי על חשיבות המוזיקה בטיפול שהיא הכלי המרכזי, הדינמיקה בין המטפל למטופל ואיכות הטיפול. טיפול בשניים - טיפול מצולם ומוקלט ומנותח לאחר הטיפול לקראת הטיפול הבא. כל הטיפול מבוסס על המוזיקה והתגובה למוזיקה.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792912338602_f6g1",
+                                                            "title": "סיכום קצרצר",
+                                                            "text": "בשיעור למדנו וצללנו לשיטה של נורדוף ורובינס - המודל היצירתי על חשיבות המוזיקה בטיפול שהיא הכלי המרכזי, הדינמיקה בין המטפל למטופל ואיכות הטיפול. טיפול בשניים - טיפול מצולם ומוקלט ומנותח לאחר הטיפול לקראת הטיפול הבא. כל הטיפול מבוסס על המוזיקה והתגובה למוזיקה.",
+                                                            "createdAt": "25.10.2026 09:12",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        }
+            },
+            "3094130": {
+                        "2": {
+                                    "date": "2026-10-20",
+                                    "topic": "שיעור 2 - פרויד",
+                                    "text": "התעמקות בפרויד:\nבשיעור הרחבנו על התיאוריה של פרויד - על המודלים השונים . \nהעיסוק בלא מודע ובפער בין הפנים וחוויות העבר למודע ולסימפטומים החוץ גופניים או הנפשיים שלנו.",
+                                    "showInCalendar": false,
+                                    "notes": [
+                                                {
+                                                            "id": "note_1792505424341_run6",
+                                                            "title": "התעמקות בפרויד",
+                                                            "text": "בשיעור הרחבנו על התיאוריה של פרויד - על המודלים השונים . \nהעיסוק בלא מודע ובפער בין הפנים וחוויות העבר למודע ולסימפטומים החוץ גופניים או הנפשיים שלנו.",
+                                                            "createdAt": "20.10.2026 17:10",
+                                                            "showInCalendar": false
+                                                }
+                                    ]
+                        }
+            }
+};
+        const initialTasks = [
+            {
+                        "uid": "82260@online.dyellin.ac.il",
+                        "title": "לבדוק מול ערן לגבי האם אני מתחיל טיפול. מה קורה הלאה ולגבי עוד מטופלים כמובן",
+                        "description": "אנא מלאו את טבלת המשתנים הריקה במשתנים משלכם. לכל סולם מדידה התאימו משתנה אחד לדוגמה, ציינו את הערכים ואת האוכלוסייה, והמציאו שכיחות לכל משתנה.",
+                        "dueDate": "2026-10-22",
+                        "courseCode": "3094145",
+                        "course": "פיתוח חשיבה מבוססת נתונים (מחקר כמותני)",
+                        "type": "משימה",
+                        "source": "moodle",
+                        "showInCalendar": true,
+                        "completed": true
+            },
+            {
+                        "title": "רלפקציה על השיעור",
+                        "dueDate": "2026-10-25",
+                        "course": "מוסיקה שנה א - היבטים פסיכודינמיים",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": false
+            },
+            {
+                        "title": "רפלקציה - השורשים המשפחתיים של המוזיקה",
+                        "dueDate": "2026-10-25",
+                        "course": "מבוא לטיפול במוסיקה",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": false
+            },
+            {
+                        "title": "מחקר אימון בכיתה סמינריון נוירולוגי",
+                        "dueDate": "2026-11-24",
+                        "course": "סמינריון טיפול במוסיקה בראיה נוירולוגית",
+                        "type": "משימה",
+                        "completed": false,
+                        "showInCalendar": true,
+                        "reminderEnabled": true,
+                        "reminderDateTime": "2026-11-15T08:00",
+                        "autoSyncCalendar": true
+            },
+            {
+                        "title": "תרגיל הרהור - מבוא לטיפול במוזיקה",
+                        "dueDate": "2026-11-01",
+                        "course": "מבוא לטיפול במוסיקה",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": true,
+                        "reminderEnabled": true,
+                        "reminderDateTime": "2026-10-29T19:00",
+                        "source": "manual",
+                        "reminderFired": true
+            },
+            {
+                        "title": "מחקר כמותני - לשמוע את השיעור השני של יחידה 3 . ",
+                        "dueDate": "2026-10-29",
+                        "course": "שיטות מחקר איכותניות",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": true,
+                        "reminderEnabled": true,
+                        "reminderDateTime": "2026-10-28T08:00",
+                        "autoSyncCalendar": false,
+                        "source": "manual",
+                        "reminderFired": true
+            },
+            {
+                        "title": "לסדר את ההעברת הפעילות בכיתה בשיעור של מודלים וגישות במוזיקה",
+                        "dueDate": "2026-11-08",
+                        "course": "תיאוריות, מודלים וגישות בטיפול במוסיקה",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": true,
+                        "reminderEnabled": true,
+                        "reminderDateTime": "2026-11-03T12:00",
+                        "autoSyncCalendar": false,
+                        "reminderFired": true,
+                        "source": "manual"
+            },
+            {
+                        "title": "נגינה חווייתית נעימה - המוזיקה של המטפל - אני? ",
+                        "dueDate": "2026-11-01",
+                        "course": "המוזיקה של המטפל",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": true,
+                        "reminderEnabled": true,
+                        "reminderDateTime": "2026-10-28T08:00",
+                        "autoSyncCalendar": false,
+                        "reminderFired": true
+            },
+            {
+                        "title": "נגינה מחדש - המוזיקה של המטפל + ריפלקציה ",
+                        "dueDate": "2026-11-01",
+                        "course": "המוזיקה של המטפל",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": true,
+                        "reminderEnabled": true,
+                        "reminderDateTime": "2026-10-29T08:00",
+                        "autoSyncCalendar": false,
+                        "reminderFired": true
+            },
+            {
+                        "title": "עיון מוזיקאלי בסגנון חדש לא מוכר לנו לנהל שיחה של חצי שעה ואחר כך לכתוב תובנות. ",
+                        "dueDate": "2026-11-08",
+                        "course": "המוזיקה של המטפל",
+                        "completed": true,
+                        "showInCalendar": true
+            },
+            {
+                        "title": "ריפלקציה - מה היה לי משמעותי מהתרגיל דבר שלמדתי על עצמי מה תובנה שעלתה לי.",
+                        "dueDate": "2026-11-08",
+                        "course": "מוסיקה שנה א - היבטים פסיכודינמיים",
+                        "type": "משימה",
+                        "completed": true,
+                        "showInCalendar": true
+            },
+            {
+                        "title": "ריפלקציה - ריפלקציה על מה התחושות בשיעור אם ניגנתם אז איך היה מה התחדש וכו.. ואם הקשבתם איך היו התחושות להגיד מה היה וכו",
+                        "dueDate": "2026-11-15",
+                        "course": "מוסיקה שנה א - היבטים פסיכודינמיים",
+                        "type": "משימה",
+                        "completed": false,
+                        "showInCalendar": true
+            }
+];
+        const initialGrades = {};
+
+        // מיזוג חכם של נתוני הבסיס עם נתונים שמורים ב-localStorage כך ששום פסיק לא ילך לאיבוד לעולם
+        function loadMergedInitialState() {
+            // 1. מרצים
+            const savedLecturers = safeJsonParse(safeStorage.getItem('myMasterLecturers'), {});
+            const mergedLecturers = deepClone(initialLecturers);
+            for (const [k, v] of Object.entries(savedLecturers)) {
+                if (v && typeof v === 'object') {
+                    mergedLecturers[k] = Object.assign({}, mergedLecturers[k] || {}, v);
+                    // שמירה על טלפון/מייל מברירת המחדל אם בשמור היה ריק
+                    if (!mergedLecturers[k].phone && initialLecturers[k] && initialLecturers[k].phone) {
+                        mergedLecturers[k].phone = initialLecturers[k].phone;
+                    }
+                    if (!mergedLecturers[k].email && initialLecturers[k] && initialLecturers[k].email) {
+                        mergedLecturers[k].email = initialLecturers[k].email;
+                    }
+                }
+            }
+
+            // 2. סילבוס ומבנה ציון
+            const savedSyllabus = safeJsonParse(safeStorage.getItem('myMasterSyllabus'), {});
+            const mergedSyllabus = Object.assign({}, deepClone(initialCourseSyllabus), savedSyllabus);
+
+            // 3. הערות וסיכומי שיעורים
+            const savedNotes = safeJsonParse(safeStorage.getItem('myMasterLessonNotes'), {});
+            const mergedNotes = deepClone(initialCourseLessonNotes);
+            for (const [cCode, lessons] of Object.entries(savedNotes)) {
+                if (!lessons || typeof lessons !== 'object') continue;
+                if (!mergedNotes[cCode]) mergedNotes[cCode] = {};
+                for (const [lNum, lObj] of Object.entries(lessons)) {
+                    if (!lObj || typeof lObj !== 'object') continue;
+                    const hasSavedContent = Boolean(
+                        (lObj.text && lObj.text.trim()) ||
+                        (lObj.topic && lObj.topic.trim()) ||
+                        (Array.isArray(lObj.notes) && lObj.notes.length > 0)
+                    );
+                    if (hasSavedContent || !mergedNotes[cCode][lNum]) {
+                        mergedNotes[cCode][lNum] = lObj;
+                    }
+                }
+            }
+
+            // 4. משימות ומבחנים
+            const savedTasks = safeJsonParse(safeStorage.getItem('myMasterTasks'), null);
+            let mergedTasks;
+            if (Array.isArray(savedTasks) && savedTasks.length > 0) {
+                mergedTasks = savedTasks;
+                // אם ב-localStorage הייתה רק משימת מודל אחת אוטומטית וחסרות המשימות האישיות של עדן, נשלים אותן
+                for (const initTask of initialTasks) {
+                    const exists = mergedTasks.some(t =>
+                        (initTask.uid && t.uid === initTask.uid) ||
+                        (t.title === initTask.title && t.course === initTask.course)
+                    );
+                    if (!exists) {
+                        mergedTasks.push(deepClone(initTask));
+                    }
+                }
+            } else {
+                mergedTasks = deepClone(initialTasks);
+            }
+
+            // 5. ציונים
+            const savedGrades = safeJsonParse(safeStorage.getItem('myMasterGrades'), {});
+            const mergedGrades = Object.assign({}, deepClone(initialGrades), savedGrades);
+
+            return {
+                lecturersData: mergedLecturers,
+                courseSyllabusData: mergedSyllabus,
+                courseLessonNotes: mergedNotes,
+                tasks: mergedTasks,
+                courseGrades: mergedGrades
+            };
+        }
 
         createApp({
             data() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const queryChannel = urlParams.get('channel');
-                const defaultChannel = queryChannel || localStorage.getItem('achiya_sync_channel') || 'achiya_eden_master_2026';
+                const merged = loadMergedInitialState();
+                const todayStr = new Date().toISOString().split('T')[0];
 
                 return {
                     currentTab: 'today',
                     selectedCourseCode: '3094119',
-                    currentSelectedLessonNum: 1, // מספר שיעור נבחר בתיק הקורס
+                    currentSelectedLessonNum: 1,
                     selectedSemester: 'A',
                     courseFilterSemester: 'all',
                     taskFilter: 'all',
                     mobileMenuOpen: false,
-                    showSyncModal: false,
-                    showAddPatientModal: false,
                     selectedClassModal: null,
                     showDailyRecapModal: false,
                     showDataTransferModal: false,
                     transferStatusMsg: '',
-                    recapSelectedDate: new Date().toISOString().split('T')[0],
+                    recapSelectedDate: todayStr,
+
+                    // זיהוי הרצה מתוך Google Drive (Google Apps Script)
+                    isGoogleDriveApp: (typeof google !== 'undefined' && Boolean(google.script && google.script.run)),
+                    driveSaveStatus: '',
 
                     // בחירת קורס מתוך תפריט נפתח (Dropdown)
                     courseDropdownOpen: false,
@@ -2572,7 +3073,7 @@
                     selectedLecturer: {},
                     editingLecturerMode: false,
                     editingLecturer: { name: '', phone: '', email: '', role: '', room: '', officeHours: '', notes: '' },
-                    lecturersData: Object.assign({}, initialLecturers, JSON.parse(localStorage.getItem('myMasterLecturers') || '{}')),
+                    lecturersData: merged.lecturersData,
 
                     quickClassNoteText: '',
                     // ניהול הערות וסיכומים מתקדם לשיעור (שמירה בטוחה, ריבוי הערות ומניעת אובדן מידע)
@@ -2585,7 +3086,7 @@
 
                     // ניהול משימות הקורס
                     courseNewTaskTitle: '',
-                    courseNewTaskDate: new Date().toISOString().split('T')[0],
+                    courseNewTaskDate: todayStr,
                     courseNewTaskType: 'משימה',
                     courseNewTaskShowInCalendar: true,
 
@@ -2596,78 +3097,42 @@
                     syllabusSaveSuccess: false,
 
                     quickTaskTitle: '',
-                    quickTaskDate: new Date().toISOString().split('T')[0],
+                    quickTaskDate: todayStr,
 
                     liveNow: new Date(),
                     liveClock: '',
 
                     schedule: scheduleData,
                     academicCoursesList: academicCourses,
-                    
-                    // סנכרון
-                    syncChannel: defaultChannel,
-                    syncStatus: { connected: false, lastSync: null },
-                    syncAlertMessage: '',
-                    eventSource: null,
-                    isInternalUpdate: false,
 
                     // לוח שנה אקדמי
                     currentCalendarDate: new Date(),
-                    calendarSelectedDate: new Date().toISOString().split('T')[0],
+                    calendarSelectedDate: todayStr,
 
                     // סנכרון מודל
-                    moodleIcalUrl: localStorage.getItem('myMasterMoodleUrl') || 'https://online.dyellin.ac.il/calendar/export_execute.php?userid=21570&authtoken=ec042cd191ce4464be0a3b672420678fe48089a8&preset_what=all&preset_time=custom',
+                    moodleIcalUrl: safeStorage.getItem('myMasterMoodleUrl') || 'https://online.dyellin.ac.il/calendar/export_execute.php?userid=21570&authtoken=ec042cd191ce4464be0a3b672420678fe48089a8&preset_what=all&preset_time=custom',
                     moodleSyncing: false,
-                    lastMoodleSync: localStorage.getItem('myMasterLastMoodleSync') || null,
+                    lastMoodleSync: safeStorage.getItem('myMasterLastMoodleSync') || null,
 
                     // תזכורות פוש
                     desktopNotificationPermission: (typeof Notification !== 'undefined') ? Notification.permission : 'default',
                     showReminderInfoModal: false,
 
                     // משימות ומבחנים (כלליות לקורס!)
-                    tasks: JSON.parse(localStorage.getItem('myMasterTasks') || '[]'),
-                    newTask: { title: '', dueDate: '', course: '', type: 'משימה', completed: false, showInCalendar: true, reminderEnabled: false, reminderDateTime: '', autoSyncCalendar: true },
+                    tasks: merged.tasks,
+                    newTask: { title: '', dueDate: '', course: '', type: 'משימה', completed: false, showInCalendar: true, reminderEnabled: false, reminderDateTime: '', autoSyncCalendar: false },
                     showEditTaskModal: false,
                     editingTaskIndex: null,
                     editingTask: { title: '', dueDate: '', course: '', type: 'משימה', completed: false, showInCalendar: true, reminderEnabled: false, reminderDateTime: '', source: 'manual' },
 
-                    // עריכת תיעוד מטופלים
-                    showEditPatientModal: false,
-                    editingPatientIndex: null,
-                    editingPatientNote: { patientCode: '', date: '', musicalTools: '', summary: '', supervisionNotes: '', nextDate: '', nextSessionGoal: '' },
-
-                    // עריכת פרקטיקום
-                    showEditPracticumModal: false,
-                    editingPracticumIndex: null,
-                    editingPracticum: { date: '', type: 'טיפול', hours: null, notes: '' },
-
-                    // הגדרות רשת מקומית וענן מאובטח עבור QR קוד
-                    localServerIp: '192.168.14.11',
-                    localServerPort: '8080',
-                    connectionMode: 'tunnel',
-                    tunnelUrl: '',
-
                     // ציונים
-                    courseGrades: JSON.parse(localStorage.getItem('myMasterGrades') || '{}'),
+                    courseGrades: merged.courseGrades,
 
                     // סילבוס ומבנה ציון לכל קורס
-                    courseSyllabusData: JSON.parse(localStorage.getItem('myMasterSyllabus') || '{}'),
+                    courseSyllabusData: merged.courseSyllabusData,
 
-                    // מבנה חדש: סיכומי שיעורים לפי קורס, מספר שיעור ותאריך
-                    courseLessonNotes: JSON.parse(localStorage.getItem('myMasterLessonNotes') || '{}'),
-
-                    // תיעוד מטופלים
-                    patientNotes: JSON.parse(localStorage.getItem('myMasterPatientNotes') || '[]'),
-                    newPatientNote: { patientCode: '', date: '', musicalTools: '', summary: '', supervisionNotes: '', nextDate: '', nextSessionGoal: '' },
-                    patientSearch: '',
-
-                    // פרקטיקום
-                    practicumLog: JSON.parse(localStorage.getItem('myMasterPracticum') || '[]'),
-                    newPracticum: { date: '', type: 'טיפול', hours: null, notes: '' },
-
-                    // שכר לימוד
-                    payments: JSON.parse(localStorage.getItem('myMasterPayments') || '[]'),
-                    newPayment: { date: '', description: '', amount: null, status: 'עתידי' },
+                    // סיכומי שיעורים לפי קורס, מספר שיעור ותאריך
+                    courseLessonNotes: merged.courseLessonNotes,
 
                     mobileTabs: [
                         { key: 'today', label: 'היום בלייב', icon: 'fas fa-clock text-blue-600' },
@@ -2681,7 +3146,7 @@
                     lecturerSearchQuery: '',
                     activeReminderBanner: null,
                     lessonNotesSavedFeedback: false
-                }
+                };
             },
             computed: {
                 filteredLecturersList() {
@@ -2710,10 +3175,21 @@
                     return days[this.liveNow.getDay()];
                 },
                 todayHebrewDate() {
-                    return new Intl.DateTimeFormat('he-IL', { dateStyle: 'full' }).format(this.liveNow);
+                    try {
+                        if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+                            return new Intl.DateTimeFormat('he-IL', { dateStyle: 'full' }).format(this.liveNow);
+                        }
+                    } catch (e) {}
+                    return `יום ${this.currentDayName}, ${this.todayIsoDate}`;
                 },
                 todayHebrewShort() {
-                    return new Intl.DateTimeFormat('he-IL', { day: 'numeric', month: 'numeric' }).format(this.liveNow);
+                    try {
+                        if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+                            return new Intl.DateTimeFormat('he-IL', { day: 'numeric', month: 'numeric' }).format(this.liveNow);
+                        }
+                    } catch (e) {}
+                    const parts = this.todayIsoDate.split('-');
+                    return `${parts[2]}/${parts[1]}`;
                 },
                 todaySchedule() {
                     return this.schedule.filter(s => s.semester === this.selectedSemester && s.day === this.currentDayName);
@@ -2732,7 +3208,6 @@
                     if (!this.currentCourseData) return 14;
                     return this.currentCourseData.semesterLabel === 'שנתי' ? 28 : 14;
                 },
-                // הערך של השיעור הנוכחי הנבחר (אוטומטי)
                 currentLessonEntry() {
                     const code = this.currentCourseData.code;
                     const num = this.currentSelectedLessonNum;
@@ -2790,25 +3265,17 @@
                     return this.academicCoursesList.filter(c => c.semesterLabel.includes(this.courseFilterSemester));
                 },
                 searchedCoursesList() {
+                    const baseList = this.filteredCoursesList;
                     if (!this.courseSearchQuery || !this.courseSearchQuery.trim()) {
-                        return this.academicCoursesList;
+                        return baseList;
                     }
                     const q = this.courseSearchQuery.toLowerCase().trim();
-                    return this.academicCoursesList.filter(c => 
+                    return baseList.filter(c => 
                         c.name.toLowerCase().includes(q) ||
                         c.code.includes(q) ||
                         (c.lecturer && c.lecturer.toLowerCase().includes(q)) ||
                         (c.room && c.room.toLowerCase().includes(q)) ||
                         (c.semesterLabel && c.semesterLabel.toLowerCase().includes(q))
-                    );
-                },
-                filteredPatientNotes() {
-                    if (!this.patientSearch.trim()) return this.patientNotes;
-                    const q = this.patientSearch.toLowerCase();
-                    return this.patientNotes.filter(n => 
-                        (n.patientCode && n.patientCode.toLowerCase().includes(q)) ||
-                        (n.musicalTools && n.musicalTools.toLowerCase().includes(q)) ||
-                        (n.summary && n.summary.toLowerCase().includes(q))
                     );
                 },
                 weightedGPA() {
@@ -2833,47 +3300,6 @@
                     }
                     return sum;
                 },
-                totalPracticumHours() {
-                    return this.practicumLog.reduce((sum, e) => sum + Number(e.hours || 0), 0);
-                },
-                totalDirectHours() {
-                    return this.practicumLog.filter(e => e.type === 'טיפול').reduce((sum, e) => sum + Number(e.hours || 0), 0);
-                },
-                totalSupervisionHours() {
-                    return this.practicumLog.filter(e => e.type === 'הדרכה').reduce((sum, e) => sum + Number(e.hours || 0), 0);
-                },
-                totalPaidAmount() {
-                    return this.payments.filter(p => p.status === 'שולם').reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                },
-                totalPendingAmount() {
-                    return this.payments.filter(p => p.status !== 'שולם').reduce((sum, p) => sum + Number(p.amount || 0), 0);
-                },
-                isHostedOnline() {
-                    const host = window.location.hostname;
-                    return host.includes('github.io') || (host && host !== 'localhost' && host !== '127.0.0.1' && !host.startsWith('192.168.') && !host.startsWith('10.') && !host.startsWith('172.'));
-                },
-                mobileWebUrl() {
-                    let baseUrl = '';
-                    if (this.isHostedOnline) {
-                        baseUrl = window.location.href.split('?')[0].split('#')[0];
-                    } else if (this.connectionMode === 'tunnel' && this.tunnelUrl) {
-                        let clean = this.tunnelUrl.trim();
-                        baseUrl = clean.endsWith('/') ? clean + 'MyMasterPortal.html' : clean + '/MyMasterPortal.html';
-                    } else if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-                        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                            baseUrl = `http://${this.localServerIp}:${this.localServerPort}${window.location.pathname}`;
-                        } else {
-                            baseUrl = window.location.href.split('?')[0].split('#')[0];
-                        }
-                    } else {
-                        baseUrl = `http://${this.localServerIp}:${this.localServerPort}/MyMasterPortal.html`;
-                    }
-                    return `${baseUrl}?channel=${encodeURIComponent(this.syncChannel)}`;
-                },
-                qrCodeUrl() {
-                    const targetUrl = this.mobileWebUrl;
-                    return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(targetUrl)}`;
-                },
                 calendarYear() {
                     return this.currentCalendarDate.getFullYear();
                 },
@@ -2889,14 +3315,13 @@
                     const month = this.calendarMonth;
                     
                     const firstDay = new Date(year, month, 1, 12, 0, 0);
-                    const startingDayOfWeek = firstDay.getDay(); // 0 (Sun) to 6 (Sat)
+                    const startingDayOfWeek = firstDay.getDay();
                     
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
                     const daysInPrevMonth = new Date(year, month, 0).getDate();
                     
                     const days = [];
                     
-                    // Previous month padding
                     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
                         const d = daysInPrevMonth - i;
                         const prevMonth = month === 0 ? 11 : month - 1;
@@ -2911,7 +3336,6 @@
                         });
                     }
                     
-                    // Current month days
                     for (let d = 1; d <= daysInMonth; d++) {
                         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                         days.push({
@@ -2923,7 +3347,6 @@
                         });
                     }
                     
-                    // Next month padding to complete 35 or 42 grid cells
                     const remaining = (7 - (days.length % 7)) % 7;
                     for (let d = 1; d <= remaining; d++) {
                         const nextMonth = month === 11 ? 0 : month + 1;
@@ -2970,7 +3393,6 @@
                     }
                     return { dayName, dateFormatted, weekNum, semester };
                 },
-                // ריכוז כל השיעורים והסיכומים בתאריך הנבחר עבור יומן הסיכום היומי!
                 getDailyRecapEntries() {
                     const targetDate = this.recapSelectedDate;
                     if (!targetDate) return [];
@@ -2999,7 +3421,6 @@
                     const results = [];
                     const addedCourseCodes = new Set();
 
-                    // 1. כל השיעורים המשובצים למערכת באותו יום
                     const scheduledClasses = this.schedule.filter(s => s.semester === semKey && s.day === dayName);
                     for (const cls of scheduledClasses) {
                         const course = this.academicCoursesList.find(c => 
@@ -3009,11 +3430,15 @@
                         const courseCode = course.code;
                         addedCourseCodes.add(courseCode);
 
-                        // שיעור עבור קורס שנתי בסמסטר ב' (15-28) לעומת סמסטר א' (1-14)
                         const effectiveLessonNum = (semKey === 'B' && course.semesterLabel === 'שנתי') ? (weekNum + 14) : weekNum;
 
                         const lessonObj = (this.courseLessonNotes[courseCode] && this.courseLessonNotes[courseCode][effectiveLessonNum]) || null;
-                        const hasNote = Boolean(lessonObj && ((lessonObj.text && lessonObj.text.trim().length > 0) || (lessonObj.topic && lessonObj.topic.trim().length > 0)));
+                        const combinedText = lessonObj
+                            ? (lessonObj.text && lessonObj.text.trim()
+                                ? lessonObj.text
+                                : (Array.isArray(lessonObj.notes) ? lessonObj.notes.map(n => (n.title ? n.title + ':\n' : '') + n.text).join('\n\n---\n\n') : ''))
+                            : '';
+                        const hasNote = Boolean(lessonObj && (combinedText.trim().length > 0 || (lessonObj.topic && lessonObj.topic.trim().length > 0)));
 
                         results.push({
                             courseCode: courseCode,
@@ -3024,17 +3449,19 @@
                             lessonNum: effectiveLessonNum,
                             hasNotes: hasNote,
                             topic: lessonObj ? (lessonObj.topic || '') : '',
-                            text: lessonObj ? (lessonObj.text || '') : ''
+                            text: combinedText
                         });
                     }
 
-                    // 2. כל קורס נוסף שבו נשמר סיכום במפורש לתאריך זה
                     for (const course of this.academicCoursesList) {
                         if (addedCourseCodes.has(course.code)) continue;
                         const lessons = this.courseLessonNotes[course.code];
                         if (lessons) {
                             for (const [lNum, data] of Object.entries(lessons)) {
-                                if (data && data.date === targetDate && (data.text || data.topic)) {
+                                if (data && data.date === targetDate && (data.text || data.topic || (Array.isArray(data.notes) && data.notes.length > 0))) {
+                                    const combinedText = data.text && data.text.trim()
+                                        ? data.text
+                                        : (Array.isArray(data.notes) ? data.notes.map(n => (n.title ? n.title + ':\n' : '') + n.text).join('\n\n---\n\n') : '');
                                     results.push({
                                         courseCode: course.code,
                                         courseName: course.name,
@@ -3044,7 +3471,7 @@
                                         lessonNum: lNum,
                                         hasNotes: true,
                                         topic: data.topic || '',
-                                        text: data.text || ''
+                                        text: combinedText
                                     });
                                 }
                             }
@@ -3071,31 +3498,27 @@
                 setInterval(this.updateLiveClock, 1000);
                 this.loadNoteDraftForSelectedLesson();
 
-                // תיקון אוטומטי של תאריכים ישנים שחושבו בטעות ליום שבת (במקום ראשון)
-                if (this.courseLessonNotes) {
-                    let changed = false;
-                    for (const cCode in this.courseLessonNotes) {
-                        const lessons = this.courseLessonNotes[cCode];
-                        if (lessons) {
-                            for (const num in lessons) {
-                                const entry = lessons[num];
-                                if (entry && entry.date) {
-                                    const parts = entry.date.split('-').map(Number);
-                                    if (parts.length === 3) {
-                                        const d = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
-                                        if (d.getDay() === 6) { // שבת -> הזזה לראשון!
-                                            d.setDate(d.getDate() + 1);
-                                            entry.date = this.formatLocalDate(d);
-                                            changed = true;
-                                        }
-                                    }
+                // שמירת הנתונים הממוזגים ל-localStorage כדי להבטיח שכל הנתונים זמינים תמיד בדפדפן
+                this.saveLocalStorageOnly();
+
+                // אם המערכת רצה מתוך Google Apps Script / Google Drive - טען נתונים מהענן של גוגל דרייב
+                if (this.isGoogleDriveApp) {
+                    try {
+                        google.script.run
+                            .withSuccessHandler(sd => {
+                                if (sd && typeof sd === 'object' && Object.keys(sd).length > 0) {
+                                    this.applyImportedData(sd, false);
+                                    this.driveSaveStatus = 'מסונכרן עם הדרייב ✓';
+                                } else {
+                                    // הדרייב ריק בהפעלה ראשונה -> שמור את כל הנתונים הקיימים לדרייב
+                                    this.saveData();
                                 }
-                            }
-                        }
-                    }
-                    if (changed) {
-                        localStorage.setItem('myMasterLessonNotes', JSON.stringify(this.courseLessonNotes));
-                    }
+                            })
+                            .withFailureHandler(err => {
+                                console.warn('Google Drive initial load warning:', err);
+                            })
+                            .loadPortalData();
+                    } catch (e) {}
                 }
 
                 // הגדרת מספר שיעור התחלתי אוטומטי לקורס הנבחר
@@ -3109,7 +3532,6 @@
                 setInterval(() => this.checkRemindersDue(), 20000);
             },
             methods: {
-                // דפדוף שיעורים מהיר למובייל ולדסקטופ
                 prevLesson() {
                     if (this.currentSelectedLessonNum > 1) {
                         this.currentSelectedLessonNum--;
@@ -3121,7 +3543,6 @@
                     }
                 },
 
-                // ניהול טיוטה מקומית של הערות שיעור למניעת אובדן מידע
                 onNoteDraftInput() {
                     if (!this.currentCourseData) return;
                     const draftKey = `draft_note_${this.currentCourseData.code}_${this.currentSelectedLessonNum}`;
@@ -3131,22 +3552,20 @@
                         showInCal: this.currentCourseNoteShowInCal,
                         timestamp: Date.now()
                     };
-                    localStorage.setItem(draftKey, JSON.stringify(payload));
+                    safeStorage.setItem(draftKey, JSON.stringify(payload));
                 },
                 loadNoteDraftForSelectedLesson() {
                     if (!this.currentCourseData) return;
                     const draftKey = `draft_note_${this.currentCourseData.code}_${this.currentSelectedLessonNum}`;
-                    const savedDraft = localStorage.getItem(draftKey);
+                    const savedDraft = safeStorage.getItem(draftKey);
                     if (savedDraft) {
-                        try {
-                            const parsed = JSON.parse(savedDraft);
-                            if (parsed && (parsed.text || parsed.title)) {
-                                this.currentCourseNoteDraft = parsed.text || '';
-                                this.currentCourseNoteTitle = parsed.title || '';
-                                this.currentCourseNoteShowInCal = Boolean(parsed.showInCal);
-                                return;
-                            }
-                        } catch (e) {}
+                        const parsed = safeJsonParse(savedDraft, null);
+                        if (parsed && (parsed.text || parsed.title)) {
+                            this.currentCourseNoteDraft = parsed.text || '';
+                            this.currentCourseNoteTitle = parsed.title || '';
+                            this.currentCourseNoteShowInCal = Boolean(parsed.showInCal);
+                            return;
+                        }
                     }
                     if (!this.editingNoteId) {
                         this.currentCourseNoteDraft = '';
@@ -3157,10 +3576,9 @@
                 clearNoteDraftForSelectedLesson() {
                     if (!this.currentCourseData) return;
                     const draftKey = `draft_note_${this.currentCourseData.code}_${this.currentSelectedLessonNum}`;
-                    localStorage.removeItem(draftKey);
+                    safeStorage.removeItem(draftKey);
                 },
 
-                // שמירה והוספת הערה/סיכום לשיעור (שמירה בטוחה עם כפתור מפורש)
                 saveCurrentLessonNote() {
                     if (!this.currentCourseNoteDraft.trim() && !this.currentCourseNoteTitle.trim()) {
                         alert('אנא הזן כותרת או תוכן להערה לפני השמירה');
@@ -3214,7 +3632,6 @@
                         this.courseNoteSuccessMsg = 'ההערה נשמרה בהצלחה בארכיון השיעור!';
                     }
 
-                    // עדכון טקסט תאימות אחורה
                     lessonObj.text = lessonObj.notes.map(n => (n.title ? n.title + ':\n' : '') + n.text).join('\n\n---\n\n');
                     if (!lessonObj.topic && this.currentCourseNoteTitle.trim()) {
                         lessonObj.topic = this.currentCourseNoteTitle.trim();
@@ -3245,10 +3662,10 @@
                     this.currentCourseNoteDraft = note.text || '';
                     this.currentCourseNoteShowInCal = Boolean(note.showInCalendar);
                     const el = document.getElementById('lesson-note-editor');
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 },
                 deleteLessonNote(noteId) {
-                    if (!confirm('האם אתה בטוח שברצונך למחוק הערה זו?')) return;
+                    if (typeof confirm !== 'undefined' && !confirm('האם אתה בטוח שברצונך למחוק הערה זו?')) return;
                     const code = this.currentCourseData.code;
                     const num = this.currentSelectedLessonNum;
                     const lessonObj = this.courseLessonNotes[code] && this.courseLessonNotes[code][num];
@@ -3259,8 +3676,6 @@
                     }
                 },
 
-                // צליל תזכורת סינתטי ללא צורך בקובץ חיצוני
-                // ניהול מבנה הציון ודרישות המעבר בסילבוס
                 startEditSyllabus() {
                     this.tempSyllabusDraft = this.currentCourseSyllabusText;
                     this.isEditingSyllabus = true;
@@ -3303,7 +3718,6 @@
                     } catch (e) {}
                 },
 
-// ניווט לוח שנה אקדמי
                 prevMonth() {
                     this.currentCalendarDate = new Date(this.calendarYear, this.calendarMonth - 1, 1, 12, 0, 0);
                 },
@@ -3318,14 +3732,14 @@
                     this.newTask.dueDate = dateStr;
                     this.newTask.showInCalendar = true;
                     this.currentTab = 'tasks';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    if (window.scrollTo) window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
                 handleCalendarEventClick(ev) {
                     if (!ev) return;
                     if (ev.type === 'note' && ev.courseCode) {
                         this.selectCourseByCode(ev.courseCode);
                         if (ev.lessonNum) this.currentSelectedLessonNum = Number(ev.lessonNum);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        if (window.scrollTo) window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else if (ev.sourceObj) {
                         this.openEditTaskModal(ev.sourceObj);
                     }
@@ -3333,7 +3747,6 @@
                 getEventsForDate(dateStr) {
                     if (!dateStr) return [];
                     const res = [];
-                    // משימות, מבחנים ומטלות מודל
                     for (const t of this.tasks) {
                         if (t.dueDate === dateStr && t.showInCalendar !== false) {
                             res.push({
@@ -3346,7 +3759,6 @@
                             });
                         }
                     }
-                    // הערות וסיכומי שיעור מיוחדים שסומנו להצגה בלוח השנה
                     for (const code in this.courseLessonNotes) {
                         const course = this.academicCoursesList.find(c => c.code === code);
                         const cName = course ? course.name : code;
@@ -3356,10 +3768,10 @@
                             if (l && l.date === dateStr) {
                                 if (l.notes && Array.isArray(l.notes) && l.notes.length > 0) {
                                     for (const note of l.notes) {
-                                        if (note.showInCalendar && (note.text?.trim() || note.title?.trim())) {
+                                        if (note.showInCalendar && ((note.text && note.text.trim()) || (note.title && note.title.trim()))) {
                                             res.push({
                                                 type: 'note',
-                                                title: note.title?.trim() ? `שיעור ${num}: ${note.title}` : `שיעור ${num}: הערה`,
+                                                title: (note.title && note.title.trim()) ? `שיעור ${num}: ${note.title}` : `שיעור ${num}: הערה`,
                                                 course: cName,
                                                 completed: false,
                                                 lessonNum: num,
@@ -3369,10 +3781,10 @@
                                             });
                                         }
                                     }
-                                } else if (l.showInCalendar !== false && (l.topic?.trim() || l.text?.trim())) {
+                                } else if (l.showInCalendar === true && ((l.topic && l.topic.trim()) || (l.text && l.text.trim()))) {
                                     res.push({
                                         type: 'note',
-                                        title: l.topic?.trim() ? `שיעור ${num}: ${l.topic}` : `שיעור ${num}: הערות וסיכום`,
+                                        title: (l.topic && l.topic.trim()) ? `שיעור ${num}: ${l.topic}` : `שיעור ${num}: הערות וסיכום`,
                                         course: cName,
                                         completed: false,
                                         lessonNum: num,
@@ -3387,41 +3799,39 @@
                     return res;
                 },
 
-                // סנכרון מודל (Moodle iCal Feed Sync)
                 async syncMoodleNow() {
                     this.moodleSyncing = true;
                     try {
                         let items = null;
-                        // 1. נסה שרת מקומי
-                        try {
-                            const resp = await fetch('/api/sync-moodle');
-                            if (resp.ok) {
-                                const data = await resp.json();
-                                if (data && data.tasks) items = data.tasks;
-                            }
-                        } catch (e) {}
-
-                        // 2. נסה קובץ קאש סטטי
-                        if (!items) {
+                        if (typeof fetch !== 'undefined' && window.location && window.location.protocol !== 'file:') {
                             try {
-                                const resp2 = await fetch('moodle_tasks.json');
-                                if (resp2.ok) items = await resp2.json();
+                                const resp = await fetch('/api/sync-moodle');
+                                if (resp && resp.ok) {
+                                    const data = await resp.json();
+                                    if (data && data.tasks) items = data.tasks;
+                                }
                             } catch (e) {}
+
+                            if (!items) {
+                                try {
+                                    const resp2 = await fetch('moodle_tasks.json');
+                                    if (resp2 && resp2.ok) items = await resp2.json();
+                                } catch (e) {}
+                            }
                         }
 
-                        // 3. גיבוי דרך CORS Proxy אם רץ ללא שרת
-                        if (!items && this.moodleIcalUrl) {
+                        if (!items && this.moodleIcalUrl && typeof fetch !== 'undefined') {
                             try {
                                 const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(this.moodleIcalUrl)}`;
                                 const resp3 = await fetch(proxyUrl);
-                                if (resp3.ok) {
+                                if (resp3 && resp3.ok) {
                                     const raw = await resp3.text();
                                     items = this.parseClientIcs(raw);
                                 }
                             } catch (e) {}
                         }
 
-                        if (items && items.length > 0) {
+                        if (items && Array.isArray(items) && items.length > 0) {
                             let added = 0;
                             let updated = 0;
                             for (const item of items) {
@@ -3448,10 +3858,10 @@
                                 this.saveData();
                             }
                             this.lastMoodleSync = new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-                            localStorage.setItem('myMasterLastMoodleSync', this.lastMoodleSync);
+                            safeStorage.setItem('myMasterLastMoodleSync', this.lastMoodleSync);
                         }
                     } catch (err) {
-                        console.error('Moodle sync error:', err);
+                        console.warn('Moodle sync info:', err);
                     } finally {
                         this.moodleSyncing = false;
                     }
@@ -3519,7 +3929,6 @@
                     });
                 },
 
-                // תזכורות והתראות פוש (Notifications & Scheduled Push)
                 requestDesktopNotifications() {
                     if (typeof Notification !== 'undefined') {
                         Notification.requestPermission().then(perm => {
@@ -3532,26 +3941,6 @@
                             }
                         });
                     }
-                },
-                scheduleNtfyPush(task) {
-                    if (!task.reminderEnabled || !task.reminderDateTime) return;
-                    try {
-                        const targetDate = new Date(task.reminderDateTime);
-                        const targetEpoch = Math.floor(targetDate.getTime() / 1000);
-                        const nowEpoch = Math.floor(Date.now() / 1000);
-                        if (targetEpoch > nowEpoch) {
-                            fetch(`https://ntfy.sh/${this.syncChannel}_reminders`, {
-                                method: 'POST',
-                                body: `תזכורת למשימה: ${task.title}\nקורס: ${task.course || 'תואר שני'}\nמועד הגשה: ${task.dueDate || 'לא צוין'}`,
-                                headers: {
-                                    'Title': `🔔 תזכורת: ${task.title}`,
-                                    'At': `${targetEpoch}`,
-                                    'Priority': '4',
-                                    'Tags': 'alarm_clock,mortar_board'
-                                }
-                            }).catch(() => {});
-                        }
-                    } catch (e) {}
                 },
                 checkRemindersDue() {
                     const now = new Date();
@@ -3577,10 +3966,13 @@
                 },
                 updateLiveClock() {
                     this.liveNow = new Date();
-                    this.liveClock = this.liveNow.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    try {
+                        this.liveClock = this.liveNow.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    } catch (e) {
+                        this.liveClock = this.liveNow.toTimeString().substring(0, 8);
+                    }
                 },
 
-                // המרה בטוחה של תאריך ל-YYYY-MM-DD מקומי (ללא הסטת אזורי זמן של toISOString)
                 formatLocalDate(d) {
                     if (!d) return '';
                     let dateObj;
@@ -3600,7 +3992,6 @@
                     return `${y}-${m}-${day}`;
                 },
                 
-                // חישוב אוטומטי של מספר השיעור המדויק לפי שבוע הלימודים של הסמסטר!
                 getAutoLessonNumber(course, dateStr) {
                     let target;
                     if (dateStr) {
@@ -3609,7 +4000,6 @@
                     } else {
                         target = this.liveNow;
                     }
-                    // פתיחת שנה"ל תשפ"ז / שיעור 1: 11 באוקטובר 2026 (כך ש-18/10 הוא שיעור 2)
                     const semStart = new Date(2026, 9, 11, 12, 0, 0);
                     const diffDays = Math.floor((target - semStart) / (1000 * 60 * 60 * 24));
                     if (diffDays < 0) return 1;
@@ -3618,7 +4008,6 @@
                     return Math.max(1, Math.min(weekNum, max));
                 },
 
-                // חישוב תאריך מדויק לפי מספר שיעור (מ-11/10 ועד סוף הסמסטר וכל תקופות השנה - ימי ראשון ושלישי)
                 calculateEstimatedDateForLesson(course, lessonNum) {
                     const isTuesday = course && course.scheduleTime && course.scheduleTime.includes("יום ג'");
                     const isInterSemester = course && (course.semesterLabel === 'בין הסמסטרים' || (course.name && course.name.includes('אתיקה')));
@@ -3632,13 +4021,11 @@
                         semBBase.setDate(semBBase.getDate() + (lessonNum - 1) * 7);
                         return this.formatLocalDate(semBBase);
                     }
-                    // סמסטר א' (שיעורים 1-14) או קורס שנתי בסמסטר א'
                     if (lessonNum <= 14) {
                         const baseDate = new Date(2026, 9, isTuesday ? 13 : 11, 12, 0, 0);
                         baseDate.setDate(baseDate.getDate() + (lessonNum - 1) * 7);
                         return this.formatLocalDate(baseDate);
                     } else {
-                        // קורס שנתי בסמסטר ב' (שיעורים 15-28)
                         const semBBase = new Date(2027, 1, isTuesday ? 23 : 21, 12, 0, 0);
                         semBBase.setDate(semBBase.getDate() + (lessonNum - 15) * 7);
                         return this.formatLocalDate(semBBase);
@@ -3702,22 +4089,18 @@
                         }
                         out += `----------------------------------------------\n\n`;
                     }
-                    navigator.clipboard.writeText(out).then(() => {
-                        alert('סיכומי היום הועתקו ללוח בהצלחה! תוכל להדביק אותם בוואטסאפ, במייל או בקובץ Word.');
-                    }).catch(err => {
-                        console.error('Clipboard copy failed:', err);
-                    });
+                    this.copyToClipboard(out, 'סיכומי היום הועתקו ללוח בהצלחה! תוכל להדביק אותם בוואטסאפ, במייל או בקובץ Word.');
                 },
 
                 copyToClipboard(text, successMsg) {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(text).then(() => {
-                            alert(successMsg || 'הקישור הועתק ללוח בהצלחה!');
+                            alert(successMsg || 'הטקסט הועתק ללוח בהצלחה!');
                         }).catch(() => {
-                            prompt('העתק את הקישור:', text);
+                            prompt('העתק את הטקסט:', text);
                         });
                     } else {
-                        prompt('העתק את הקישור:', text);
+                        prompt('העתק את הטקסט:', text);
                     }
                 },
 
@@ -3742,14 +4125,15 @@
                     const lessons = this.courseLessonNotes[code];
                     if (!lessons) return null;
                     for (const num in lessons) {
-                        if (lessons[num] && lessons[num].date === this.todayIsoDate && lessons[num].text) {
-                            return lessons[num].text;
+                        const l = lessons[num];
+                        if (l && l.date === this.todayIsoDate) {
+                            if (l.text && l.text.trim()) return l.text;
+                            if (Array.isArray(l.notes) && l.notes.length > 0) return l.notes.map(n => n.text).join('\n');
                         }
                     }
                     return null;
                 },
 
-                // חישוב האם שיעור מתקיים ברגע זה ממש!
                 isClassActiveNow(course) {
                     if (course.day !== this.currentDayName) return false;
                     if (!course.time || !course.time.includes('-')) return false;
@@ -3794,17 +4178,15 @@
                     return 'border-slate-200/60 bg-slate-50/80 opacity-75';
                 },
 
-                // פתיחת חלון פעולות מהירות לשיעור
                 openClassActionModal(course) {
                     this.selectedClassModal = course;
                     this.quickTaskTitle = '';
                     this.quickTaskDate = this.todayIsoDate;
                     
-                    // טעינת סיכום השיעור של היום
                     const code = this.getCourseCodeByName(course.name);
                     const lessonNum = this.getAutoLessonNumber(course, this.todayIsoDate);
                     const lessonObj = this.courseLessonNotes[code] && this.courseLessonNotes[code][lessonNum];
-                    this.quickClassNoteText = lessonObj ? lessonObj.text : '';
+                    this.quickClassNoteText = lessonObj ? (lessonObj.text || '') : '';
                 },
 
                 saveQuickClassNote() {
@@ -3816,20 +4198,38 @@
                         this.courseLessonNotes[code][lessonNum] = {
                             date: this.todayIsoDate,
                             topic: '',
-                            text: ''
+                            text: '',
+                            showInCalendar: false,
+                            notes: []
                         };
                     }
-                    this.courseLessonNotes[code][lessonNum].text = this.quickClassNoteText;
-                    this.courseLessonNotes[code][lessonNum].date = this.todayIsoDate;
+                    const lessonObj = this.courseLessonNotes[code][lessonNum];
+                    lessonObj.text = this.quickClassNoteText;
+                    lessonObj.date = this.todayIsoDate;
+                    if (!lessonObj.notes || !Array.isArray(lessonObj.notes)) lessonObj.notes = [];
+                    if (this.quickClassNoteText.trim()) {
+                        if (lessonObj.notes.length === 0) {
+                            lessonObj.notes.push({
+                                id: 'note_quick_' + Date.now(),
+                                title: lessonObj.topic || 'סיכום מהיר',
+                                text: this.quickClassNoteText.trim(),
+                                createdAt: new Date().toLocaleDateString('he-IL'),
+                                showInCalendar: false
+                            });
+                        } else {
+                            lessonObj.notes[0].text = this.quickClassNoteText.trim();
+                        }
+                    }
                     this.saveData();
                 },
 
                 addQuickTaskFromClass() {
-                    if (!this.quickTaskTitle.trim()) return;
+                    if (!this.quickTaskTitle.trim() || !this.selectedClassModal) return;
                     this.tasks.push({
-                        title: this.quickTaskTitle,
+                        title: this.quickTaskTitle.trim(),
                         dueDate: this.quickTaskDate,
                         course: this.selectedClassModal.name,
+                        type: 'משימה',
                         completed: false,
                         showInCalendar: true
                     });
@@ -3837,7 +4237,6 @@
                     this.saveData();
                 },
 
-                // ניווט ישיר לדף הקורס המלא
                 navigateToCourseByName(courseName) {
                     const match = this.academicCoursesList.find(c => 
                         c.name.includes(courseName) || courseName.includes(c.name)
@@ -3885,13 +4284,11 @@
                         showInCalendar: Boolean(this.courseNewTaskShowInCalendar)
                     };
                     this.tasks.push(newTaskObj);
-
-                    // שמירה נקייה באתר בלבד ללא פתיחת חלונות מיותרים
                     this.courseNewTaskTitle = '';
+                    this.playReminderChime();
                     this.saveData();
                 },
 
-                // פתיחת מודאל ריכוז סיכומי יום לימודים
                 openDailyRecapModal(date) {
                     this.recapSelectedDate = date || this.todayIsoDate;
                     this.showDailyRecapModal = true;
@@ -3901,26 +4298,23 @@
                     return this.schedule.filter(s => s.semester === this.selectedSemester && s.day === day);
                 },
                 
-                // Tasks
                 addTask() {
+                    if (!this.newTask.title || !this.newTask.title.trim()) return;
                     const taskToAdd = {
                         ...this.newTask,
+                        title: this.newTask.title.trim(),
                         showInCalendar: this.newTask.showInCalendar !== false,
                         reminderEnabled: Boolean(this.newTask.reminderEnabled),
                         reminderDateTime: this.newTask.reminderDateTime || ''
                     };
                     this.tasks.push(taskToAdd);
 
-                    if (taskToAdd.reminderEnabled && taskToAdd.reminderDateTime) {
-                        this.scheduleNtfyPush(taskToAdd);
-                    }
-
-                    if (this.newTask.autoSyncCalendar && this.newTask.dueDate) {
+                    if (this.newTask.autoSyncCalendar && this.newTask.dueDate && typeof window !== 'undefined' && window.open) {
                         const googleUrl = this.getGoogleCalUrlForTask(taskToAdd);
                         window.open(googleUrl, '_blank');
                     }
 
-                    this.newTask = { title: '', dueDate: '', course: '', type: 'משימה', completed: false, showInCalendar: true, reminderEnabled: false, reminderDateTime: '', autoSyncCalendar: true };
+                    this.newTask = { title: '', dueDate: '', course: '', type: 'משימה', completed: false, showInCalendar: true, reminderEnabled: false, reminderDateTime: '', autoSyncCalendar: false };
                     this.saveData();
                 },
                 openEditTaskModal(task, index) {
@@ -3945,18 +4339,14 @@
                         const original = this.tasks[this.editingTaskIndex];
                         const updatedTask = { ...original, ...this.editingTask };
                         this.tasks[this.editingTaskIndex] = updatedTask;
-                        if (updatedTask.reminderEnabled && updatedTask.reminderDateTime) {
-                            this.scheduleNtfyPush(updatedTask);
-                        }
                         this.saveData();
                     }
                     this.showEditTaskModal = false;
                 },
                 deleteTask(index) {
-                    if (confirm('האם למחוק משימה/מבחן זה?')) {
-                        this.tasks.splice(index, 1);
-                        this.saveData();
-                    }
+                    if (typeof confirm !== 'undefined' && !confirm('האם למחוק משימה/מבחן זה?')) return;
+                    this.tasks.splice(index, 1);
+                    this.saveData();
                 },
                 getDaysLeftClass(dueDate) {
                     if (!dueDate) return 'bg-slate-100 text-slate-700';
@@ -3975,119 +4365,89 @@
                     return `עוד ${diffDays} ימים`;
                 },
 
-                // Patient Session Notes
-                savePatientNote() {
-                    this.patientNotes.unshift({...this.newPatientNote});
-                    this.newPatientNote = { patientCode: '', date: this.todayIsoDate, musicalTools: '', summary: '', supervisionNotes: '', nextDate: '', nextSessionGoal: '' };
-                    this.showAddPatientModal = false;
-                    this.saveData();
-                },
-                openEditPatientModal(note, index) {
-                    this.editingPatientIndex = index;
-                    this.editingPatientNote = { ...note };
-                    this.showEditPatientModal = true;
-                },
-                saveEditedPatientNote() {
-                    if (this.editingPatientIndex !== null && this.patientNotes[this.editingPatientIndex]) {
-                        this.patientNotes[this.editingPatientIndex] = { ...this.editingPatientNote };
-                        this.saveData();
-                    }
-                    this.showEditPatientModal = false;
-                },
-                deletePatientNote(index) {
-                    if (confirm('האם למחוק את תיעוד הפגישה?')) {
-                        this.patientNotes.splice(index, 1);
-                        this.saveData();
-                    }
-                },
-
-                // Practicum
-                addPracticumEntry() {
-                    this.practicumLog.unshift({...this.newPracticum});
-                    this.newPracticum = { date: this.todayIsoDate, type: 'טיפול', hours: null, notes: '' };
-                    this.saveData();
-                },
-                openEditPracticumModal(entry, index) {
-                    this.editingPracticumIndex = index;
-                    this.editingPracticum = { ...entry };
-                    this.showEditPracticumModal = true;
-                },
-                saveEditedPracticum() {
-                    if (this.editingPracticumIndex !== null && this.practicumLog[this.editingPracticumIndex]) {
-                        this.practicumLog[this.editingPracticumIndex] = { ...this.editingPracticum };
-                        this.saveData();
-                    }
-                    this.showEditPracticumModal = false;
-                },
-                deletePracticumEntry(index) {
-                    if (confirm('האם למחוק דיווח שעות זה?')) {
-                        this.practicumLog.splice(index, 1);
-                        this.saveData();
-                    }
-                },
-                getPracticumBadge(type) {
-                    if(type === 'טיפול') return 'bg-emerald-100 text-emerald-700';
-                    if(type === 'הדרכה') return 'bg-purple-100 text-purple-700';
-                    return 'bg-blue-100 text-blue-700';
-                },
-
-                // Finance
-                addPayment() {
-                    this.payments.push({...this.newPayment});
-                    this.newPayment = { date: '', description: '', amount: null, status: 'עתידי' };
-                    this.saveData();
-                },
-                togglePaymentStatus(index) {
-                    this.payments[index].status = this.payments[index].status === 'שולם' ? 'עתידי' : 'שולם';
-                    this.saveData();
-                },
-                deletePayment(index) {
-                    this.payments.splice(index, 1);
-                    this.saveData();
-                },
-
-                // Calendar URL generators
                 getGoogleCalUrlForTask(task) {
                     const title = encodeURIComponent(`דדליין: ${task.title}`);
                     const details = encodeURIComponent(`משימה / מבחן בקורס: ${task.course || 'תואר שני טיפול במוסיקה'}`);
                     const dateClean = task.dueDate ? task.dueDate.replace(/-/g, '') : '';
                     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${dateClean}/${dateClean}`;
                 },
-                getGoogleCalUrlForPatientReminder(note) {
-                    const title = encodeURIComponent(`פגישה טיפולית: ${note.patientCode}`);
-                    const details = encodeURIComponent(`יעד לפגישה: ${note.nextSessionGoal || 'טיפול במוסיקה'}`);
-                    const dateClean = note.nextDate ? note.nextDate.replace(/-/g, '') : '';
-                    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${dateClean}/${dateClean}`;
+
+                saveLocalStorageOnly() {
+                    safeStorage.setItem('myMasterLastLocalUpdate', String(Date.now()));
+                    safeStorage.setItem('myMasterTasks', JSON.stringify(this.tasks));
+                    safeStorage.setItem('myMasterGrades', JSON.stringify(this.courseGrades));
+                    safeStorage.setItem('myMasterSyllabus', JSON.stringify(this.courseSyllabusData));
+                    safeStorage.setItem('myMasterLessonNotes', JSON.stringify(this.courseLessonNotes));
+                    safeStorage.setItem('myMasterLecturers', JSON.stringify(this.lecturersData));
                 },
-                // שמירת נתונים מקומית במחשב (Local Storage)
                 saveLocalOnly() {
                     this.saveData();
                 },
                 saveData() {
-                    localStorage.setItem('myMasterLastLocalUpdate', String(Date.now()));
-                    localStorage.setItem('myMasterTasks', JSON.stringify(this.tasks));
-                    localStorage.setItem('myMasterGrades', JSON.stringify(this.courseGrades));
-                    localStorage.setItem('myMasterSyllabus', JSON.stringify(this.courseSyllabusData));
-                    localStorage.setItem('myMasterLessonNotes', JSON.stringify(this.courseLessonNotes));
-                    localStorage.setItem('myMasterPatientNotes', JSON.stringify(this.patientNotes));
-                    localStorage.setItem('myMasterPracticum', JSON.stringify(this.practicumLog));
-                    localStorage.setItem('myMasterPayments', JSON.stringify(this.payments));
-                    localStorage.setItem('myMasterLecturers', JSON.stringify(this.lecturersData));
+                    this.saveLocalStorageOnly();
+
+                    // אם המערכת רצה ב-Google Drive (Apps Script), שמור אוטומטית גם בענן של גוגל דרייב
+                    if (this.isGoogleDriveApp && typeof google !== 'undefined' && google.script && google.script.run) {
+                        this.driveSaveStatus = 'שומר בדרייב...';
+                        const fullPayload = {
+                            timestamp: Date.now(),
+                            tasks: this.tasks,
+                            grades: this.courseGrades,
+                            syllabus: this.courseSyllabusData,
+                            lessonNotes: this.courseLessonNotes,
+                            lecturers: this.lecturersData,
+                            moodleUrl: this.moodleIcalUrl
+                        };
+                        try {
+                            google.script.run
+                                .withSuccessHandler(() => {
+                                    this.driveSaveStatus = 'נשמר בדרייב ✓';
+                                })
+                                .withFailureHandler(err => {
+                                    console.warn('Drive save warning:', err);
+                                    this.driveSaveStatus = 'שמור מקומית';
+                                })
+                                .savePortalData(fullPayload);
+                        } catch (e) {}
+                    }
                 },
 
-                // העברת נתונים בין דפדפנים וגיבוי (Data Transfer & Backup)
+                applyImportedData(data, showFeedback = true) {
+                    if (!data || typeof data !== 'object') return;
+                    if (Array.isArray(data.tasks) && data.tasks.length > 0) this.tasks = data.tasks;
+                    if (data.grades && typeof data.grades === 'object') this.courseGrades = Object.assign({}, this.courseGrades, data.grades);
+                    if (data.syllabus && typeof data.syllabus === 'object') this.courseSyllabusData = Object.assign({}, this.courseSyllabusData, data.syllabus);
+                    if (data.lessonNotes && typeof data.lessonNotes === 'object') {
+                        for (const [cCode, lessons] of Object.entries(data.lessonNotes)) {
+                            if (!this.courseLessonNotes[cCode]) this.courseLessonNotes[cCode] = {};
+                            Object.assign(this.courseLessonNotes[cCode], lessons);
+                        }
+                    }
+                    if (data.lecturers && typeof data.lecturers === 'object') {
+                        this.lecturersData = Object.assign({}, this.lecturersData, data.lecturers);
+                    }
+                    if (data.moodleUrl) this.moodleIcalUrl = data.moodleUrl;
+
+                    this.saveLocalStorageOnly();
+                    this.loadNoteDraftForSelectedLesson();
+                    if (showFeedback) {
+                        this.transferStatusMsg = 'כל הנתונים נטענו ועודכנו בהצלחה מלאה!';
+                        setTimeout(() => {
+                            this.transferStatusMsg = '';
+                            this.showDataTransferModal = false;
+                        }, 1800);
+                    }
+                },
+
                 exportBackupFile() {
                     const backupData = {
-                        version: '1.0',
-                        portal: 'הפורטל האקדמי של עדן',
+                        version: '2.0',
+                        portal: 'הפורטל האקדמי של עדן אחיה',
                         exportedAt: new Date().toISOString(),
                         tasks: this.tasks,
                         grades: this.courseGrades,
                         syllabus: this.courseSyllabusData,
                         lessonNotes: this.courseLessonNotes,
-                        patientNotes: this.patientNotes,
-                        practicum: this.practicumLog,
-                        payments: this.payments,
                         lecturers: this.lecturersData,
                         moodleUrl: this.moodleIcalUrl
                     };
@@ -4119,21 +4479,8 @@
                         try {
                             const data = JSON.parse(e.target.result);
                             if (!data) throw new Error('קובץ נתונים ריק');
-                            if (data.tasks) this.tasks = data.tasks;
-                            if (data.grades) this.courseGrades = data.grades;
-                            if (data.syllabus) this.courseSyllabusData = data.syllabus;
-                            if (data.lessonNotes) this.courseLessonNotes = data.lessonNotes;
-                            if (data.patientNotes) this.patientNotes = data.patientNotes;
-                            if (data.practicum) this.practicumLog = data.practicum;
-                            if (data.payments) this.payments = data.payments;
-                            if (data.lecturers) this.lecturersData = Object.assign({}, this.lecturersData, data.lecturers);
-                            if (data.moodleUrl) this.moodleIcalUrl = data.moodleUrl;
-
+                            this.applyImportedData(data, true);
                             this.saveData();
-                            this.transferStatusMsg = 'הנתונים נטענו בהצלחה מלאה! מרענן...';
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1200);
                         } catch (err) {
                             alert('שגיאה בקריאת הקובץ: ' + (err.message || 'קובץ לא תקין'));
                         } finally {
@@ -4143,7 +4490,6 @@
                     reader.readAsText(file, 'utf-8');
                 },
 
-                // שיטות ניהול פרטי מרצים והתקשרות
                 normalizeLecturerKey(rawName) {
                     if (!rawName) return '';
                     let clean = rawName
@@ -4222,7 +4568,7 @@
                     this.saveLecturerData();
                 },
                 saveLecturerData() {
-                    localStorage.setItem('myMasterLecturers', JSON.stringify(this.lecturersData));
+                    safeStorage.setItem('myMasterLecturers', JSON.stringify(this.lecturersData));
                     this.saveData();
                 },
                 getWhatsAppUrl(phone) {
@@ -4233,11 +4579,8 @@
                     }
                     return `https://wa.me/${clean}?text=${encodeURIComponent('שלום, פונה בנוגע ללימודים בתואר שני לטיפול במוסיקה - מכללת דוד ילין')}`;
                 }
-            },
-            created() {
-                this.clientId = 'client_' + Math.random().toString(36).substring(2, 9);
             }
-        }).mount('#app')
+        }).mount('#app');
     </script>
 </body>
 </html>
