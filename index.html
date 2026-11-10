@@ -107,6 +107,12 @@
                 <h2 class="text-xl font-bold text-slate-900">עדן אחיה</h2>
                 <p class="text-xs font-semibold text-blue-600 bg-blue-50 py-1 px-2.5 rounded-full inline-block mt-1">שנה א' | תב"מ תשפ"ז</p>
                 <div class="mt-2 text-xs text-slate-500">תואר שני - טיפול במוסיקה</div>
+                <div class="mt-3">
+                    <button @click="showDataTransferModal = true" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 px-3 py-1.5 rounded-xl font-medium transition flex items-center justify-center gap-1.5 mx-auto border border-slate-200 shadow-2xs" title="העברת נתונים בין דפדפנים וגיבוי">
+                        <i class="fas fa-exchange-alt text-blue-600"></i>
+                        <span>העברת נתונים / גיבוי</span>
+                    </button>
+                </div>
 
 
             </div>
@@ -265,8 +271,14 @@
                         <span v-if="t.badge" class="badge text-[10px]" :class="t.badgeClass || 'bg-slate-100 text-slate-600'">{{ t.badge }}</span>
                     </button>
                 </div>
-                <div class="pt-3 border-t border-slate-100 text-center text-xs text-slate-400 font-mono">
-                    {{ liveClock }} • {{ todayHebrewDate }}
+                <div class="pt-3 border-t border-slate-100 space-y-2 text-center">
+                    <button @click="showDataTransferModal = true; mobileMenuOpen = false" class="w-full bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-medium py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-exchange-alt text-blue-600"></i>
+                        <span>העברת נתונים בין דפדפנים / גיבוי</span>
+                    </button>
+                    <div class="text-[11px] text-slate-400 font-mono">
+                        {{ liveClock }} • {{ todayHebrewDate }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -2250,6 +2262,69 @@
             </div>
         </div>
 
+        <!-- מודאל העברת נתונים בין דפדפנים וגיבוי (Data Transfer Modal) -->
+        <div v-if="showDataTransferModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showDataTransferModal = false">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-base shadow-xs">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900">העברת נתונים / גיבוי</h3>
+                            <p class="text-xs text-slate-500">העברת כל ההערות והמשימות בין כרום לאדג'</p>
+                        </div>
+                    </div>
+                    <button @click="showDataTransferModal = false" class="text-slate-400 hover:text-slate-600 p-1"><i class="fas fa-times text-base"></i></button>
+                </div>
+
+                <div class="space-y-3.5 text-xs text-slate-600">
+                    <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl text-blue-950 leading-relaxed space-y-1">
+                        <strong class="font-bold text-blue-900 block text-xs flex items-center gap-1.5">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                            איך מעבירים את כל המידע מ-Edge ל-Chrome?
+                        </strong>
+                        <p class="text-[11px] text-blue-800">
+                            1. פתח את האתר בדפדפן הישן (<strong>Edge</strong>), לחץ על כפתור <strong>"הורד קובץ נתונים"</strong>.<br>
+                            2. פתח את האתר בדפדפן החדש (<strong>Chrome</strong>), לחץ על <strong>"טען נתונים מקובץ"</strong> ובחר את הקובץ שהורדת.<br>
+                            <strong>זה הכל! כל ההערות, המשימות, הסילבוסים והציונים יעברו מיד בשלמותם.</strong>
+                        </p>
+                    </div>
+
+                    <!-- כפתורי פעולה -->
+                    <div class="space-y-2 pt-1">
+                        <button 
+                            @click="exportBackupFile" 
+                            class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
+                        >
+                            <i class="fas fa-download text-sm"></i>
+                            <span>1. הורד קובץ נתונים למחשב (ייצוא מ-Edge)</span>
+                        </button>
+
+                        <button 
+                            @click="triggerImportBackupFile" 
+                            class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 active:scale-[0.99] text-slate-800 border border-slate-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition"
+                        >
+                            <i class="fas fa-upload text-blue-600 text-sm"></i>
+                            <span>2. טען נתונים מקובץ (ייבוא ל-Chrome)</span>
+                        </button>
+                        <input type="file" ref="backupFileInput" @change="handleBackupFileSelect" accept=".json" class="hidden">
+                    </div>
+
+                    <div v-if="transferStatusMsg" class="p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-xl text-center font-bold text-xs flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle text-emerald-600"></i>
+                        <span>{{ transferStatusMsg }}</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t text-center">
+                    <button @click="showDataTransferModal = false" class="bg-slate-800 text-white font-bold px-6 py-2 rounded-xl text-xs hover:bg-slate-900 transition">
+                        סגור
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- מודאל כרטיס מרצה אישי (Lecturer Profile Modal) -->
         <div v-if="showLecturerModal && selectedLecturer" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showLecturerModal = false">
             <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -2948,6 +3023,8 @@
                     showAddPatientModal: false,
                     selectedClassModal: null,
                     showDailyRecapModal: false,
+                    showDataTransferModal: false,
+                    transferStatusMsg: '',
                     recapSelectedDate: new Date().toISOString().split('T')[0],
 
                     // בחירת קורס מתוך תפריט נפתח (Dropdown)
@@ -4464,6 +4541,74 @@
                     localStorage.setItem('myMasterPracticum', JSON.stringify(this.practicumLog));
                     localStorage.setItem('myMasterPayments', JSON.stringify(this.payments));
                     localStorage.setItem('myMasterLecturers', JSON.stringify(this.lecturersData));
+                },
+
+                // העברת נתונים בין דפדפנים וגיבוי (Data Transfer & Backup)
+                exportBackupFile() {
+                    const backupData = {
+                        version: '1.0',
+                        portal: 'הפורטל האקדמי של עדן',
+                        exportedAt: new Date().toISOString(),
+                        tasks: this.tasks,
+                        grades: this.courseGrades,
+                        syllabus: this.courseSyllabusData,
+                        lessonNotes: this.courseLessonNotes,
+                        patientNotes: this.patientNotes,
+                        practicum: this.practicumLog,
+                        payments: this.payments,
+                        lecturers: this.lecturersData,
+                        moodleUrl: this.moodleIcalUrl
+                    };
+                    const jsonStr = JSON.stringify(backupData, null, 2);
+                    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const now = new Date();
+                    const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+                    link.href = url;
+                    link.download = `גיבוי_פורטל_לימודים_${dateStr}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    this.transferStatusMsg = 'קובץ הנתונים הורד בהצלחה למחשב שלך!';
+                    setTimeout(() => { this.transferStatusMsg = ''; }, 4000);
+                },
+                triggerImportBackupFile() {
+                    if (this.$refs.backupFileInput) {
+                        this.$refs.backupFileInput.click();
+                    }
+                },
+                handleBackupFileSelect(event) {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (!data) throw new Error('קובץ נתונים ריק');
+                            if (data.tasks) this.tasks = data.tasks;
+                            if (data.grades) this.courseGrades = data.grades;
+                            if (data.syllabus) this.courseSyllabusData = data.syllabus;
+                            if (data.lessonNotes) this.courseLessonNotes = data.lessonNotes;
+                            if (data.patientNotes) this.patientNotes = data.patientNotes;
+                            if (data.practicum) this.practicumLog = data.practicum;
+                            if (data.payments) this.payments = data.payments;
+                            if (data.lecturers) this.lecturersData = Object.assign({}, this.lecturersData, data.lecturers);
+                            if (data.moodleUrl) this.moodleIcalUrl = data.moodleUrl;
+
+                            this.saveData();
+                            this.transferStatusMsg = 'הנתונים נטענו בהצלחה מלאה! מרענן...';
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1200);
+                        } catch (err) {
+                            alert('שגיאה בקריאת הקובץ: ' + (err.message || 'קובץ לא תקין'));
+                        } finally {
+                            event.target.value = '';
+                        }
+                    };
+                    reader.readAsText(file, 'utf-8');
                 },
 
                 // שיטות ניהול פרטי מרצים והתקשרות
